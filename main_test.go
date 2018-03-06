@@ -1,6 +1,7 @@
 package main
 
-func ExampleMain() {
+import "testing"
+
+func TestMain(t *testing.T) {
 	main()
-	// Output: hello world
 }
