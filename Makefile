@@ -25,6 +25,10 @@ enforce:
 	@echo "---> Enforcing coverage"
 	./scripts/coverage.sh $(COVERAGE_PROFILE)
 
+html:
+	@echo "---> Generating HTML coverage report"
+	go tool cover -html $(COVERAGE_PROFILE)
+
 clean:
 	@echo "---> Cleaning"
 	@rm -rf ./bin
@@ -38,4 +42,4 @@ uninstall_tools:
 	@echo "--> Uninstalling tools"
 	go clean -i github.com/alecthomas/gometalinter
 
-.PHONY: build lint test clean install_tools uninstall_tools
+.PHONY: build lint test enforce html clean install_tools uninstall_tools
