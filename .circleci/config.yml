@@ -1,0 +1,29 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.10.0
+    working_directory: /go/src/github.com/lob/aws-creds
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - vendor-{{ checksum "Gopkg.lock" }}
+      - run:
+          name: Install dependencies
+          command: |
+            dep ensure
+            make install_tools
+      - run:
+          name: Run linter
+          command: make lint
+      - run:
+          name: Run tests
+          command: make test
+      - run:
+          name: Enforce coverage
+          command: make enforce
+      - save_cache:
+          key: vendor-{{ checksum "Gopkg.lock" }}
+          paths:
+            - "/go/src/github.com/lob/aws-creds/vendor"
