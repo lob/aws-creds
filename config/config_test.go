@@ -12,7 +12,6 @@ import (
 )
 
 type testConfig struct {
-	label     string
 	setupFunc func(*Config, string)
 	shouldErr bool
 }
@@ -24,9 +23,8 @@ var (
 )
 
 func TestLoad(t *testing.T) {
-	tests := []testConfig{
-		{
-			"Success",
+	cases := map[string]testConfig{
+		"Success": {
 			func(cfg *Config, configFile string) {
 				path := filepath.Dir(configFile)
 				_ = os.MkdirAll(path, 0700)
@@ -34,13 +32,11 @@ func TestLoad(t *testing.T) {
 			},
 			false,
 		},
-		{
-			"NotExistError",
+		"NotExistError": {
 			func(cfg *Config, configFile string) {},
 			true,
 		},
-		{
-			"NoReadError",
+		"NoReadError": {
 			func(cfg *Config, configFile string) {
 				path := filepath.Dir(configFile)
 				_ = os.MkdirAll(path, 0700)
@@ -48,8 +44,7 @@ func TestLoad(t *testing.T) {
 			},
 			true,
 		},
-		{
-			"EmptyFileError",
+		"EmptyFileError": {
 			func(cfg *Config, configFile string) {
 				path := filepath.Dir(configFile)
 				_ = os.MkdirAll(path, 0700)
@@ -59,15 +54,15 @@ func TestLoad(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
+	for key, tc := range cases {
 		cfg := &Config{}
 		configFile := fmt.Sprintf("/tmp/aws-creds-%s/config", randStr())
-		tt.setupFunc(cfg, configFile)
+		tc.setupFunc(cfg, configFile)
 		err := cfg.Load(configFile)
-		if tt.shouldErr && err == nil {
-			t.Errorf("%s: expected error", tt.label)
-		} else if !tt.shouldErr && err != nil {
-			t.Errorf("%s: unexpected error: %s", tt.label, err)
+		if tc.shouldErr && err == nil {
+			t.Errorf("%s: expected error", key)
+		} else if !tc.shouldErr && err != nil {
+			t.Errorf("%s: unexpected error: %s", key, err)
 		}
 		path := filepath.Dir(configFile)
 		_ = os.RemoveAll(path)
@@ -80,16 +75,14 @@ func TestSave(t *testing.T) {
 		jsonMarshalIndent = origMarshal
 	}()
 
-	tests := []testConfig{
-		{
-			"Success",
+	cases := map[string]testConfig{
+		"Success": {
 			func(cfg *Config, configFile string) {
 				jsonMarshalIndent = origMarshal
 			},
 			false,
 		},
-		{
-			"NoPermissionsError",
+		"NoPermissionsError": {
 			func(cfg *Config, configFile string) {
 				jsonMarshalIndent = origMarshal
 				path := filepath.Dir(configFile)
@@ -98,8 +91,7 @@ func TestSave(t *testing.T) {
 			},
 			true,
 		},
-		{
-			"JSONMarshalError",
+		"JSONMarshalError": {
 			func(cfg *Config, configFile string) {
 				jsonMarshalIndent = func(i interface{}, a, b string) ([]byte, error) {
 					return nil, errors.New("err")
@@ -109,15 +101,15 @@ func TestSave(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
+	for key, tc := range cases {
 		cfg := &Config{}
 		configFile := fmt.Sprintf("/tmp/aws-creds-%s/aws-creds/config", randStr())
-		tt.setupFunc(cfg, configFile)
+		tc.setupFunc(cfg, configFile)
 		err := cfg.Save(configFile)
-		if tt.shouldErr && err == nil {
-			t.Errorf("%s: expected error", tt.label)
-		} else if !tt.shouldErr && err != nil {
-			t.Errorf("%s: unexpected error: %s", tt.label, err)
+		if tc.shouldErr && err == nil {
+			t.Errorf("%s: expected error", key)
+		} else if !tc.shouldErr && err != nil {
+			t.Errorf("%s: unexpected error: %s", key, err)
 		}
 		path := filepath.Dir(configFile)
 		parentPath := filepath.Dir(path)
