@@ -12,37 +12,66 @@ import (
 )
 
 type testConfig struct {
-	setupFunc func(*Config, string)
+	setupFunc func(*testing.T, *Config, string) func()
 	shouldErr bool
 }
 
 func TestLoad(t *testing.T) {
 	cases := map[string]testConfig{
 		"Success": {
-			func(cfg *Config, configFile string) {
+			func(t *testing.T, cfg *Config, configFile string) func() {
 				path := filepath.Dir(configFile)
-				_ = os.MkdirAll(path, 0700)
-				_ = ioutil.WriteFile(configFile, []byte("{}"), 0644)
+				if err := os.MkdirAll(path, 0700); err != nil {
+					t.Fatalf("unexpected error: %s", err)
+				}
+				if err := ioutil.WriteFile(configFile, []byte("{}"), 0644); err != nil {
+					t.Fatalf("unexpected error: %s", err)
+				}
+				return func() {
+					if err := os.RemoveAll(path); err != nil {
+						t.Fatalf("unexpected error: %s", err)
+					}
+				}
 			},
 			false,
 		},
 		"NotExistError": {
-			func(cfg *Config, configFile string) {},
+			func(t *testing.T, cfg *Config, configFile string) func() {
+				return func() {}
+			},
 			true,
 		},
 		"NoReadError": {
-			func(cfg *Config, configFile string) {
+			func(t *testing.T, cfg *Config, configFile string) func() {
 				path := filepath.Dir(configFile)
-				_ = os.MkdirAll(path, 0700)
-				_ = ioutil.WriteFile(configFile, []byte("{}"), 0222)
+				if err := os.MkdirAll(path, 0700); err != nil {
+					t.Fatalf("unexpected error: %s", err)
+				}
+				if err := ioutil.WriteFile(configFile, []byte("{}"), 0222); err != nil {
+					t.Fatalf("unexpected error: %s", err)
+				}
+				return func() {
+					if err := os.RemoveAll(path); err != nil {
+						t.Fatalf("unexpected error: %s", err)
+					}
+				}
 			},
 			true,
 		},
 		"EmptyFileError": {
-			func(cfg *Config, configFile string) {
+			func(t *testing.T, cfg *Config, configFile string) func() {
 				path := filepath.Dir(configFile)
-				_ = os.MkdirAll(path, 0700)
-				_ = ioutil.WriteFile(configFile, []byte(""), 0644)
+				if err := os.MkdirAll(path, 0700); err != nil {
+					t.Fatalf("unexpected error: %s", err)
+				}
+				if err := ioutil.WriteFile(configFile, []byte(""), 0644); err != nil {
+					t.Fatalf("unexpected error: %s", err)
+				}
+				return func() {
+					if err := os.RemoveAll(path); err != nil {
+						t.Fatalf("unexpected error: %s", err)
+					}
+				}
 			},
 			true,
 		},
@@ -51,15 +80,13 @@ func TestLoad(t *testing.T) {
 	for key, tc := range cases {
 		cfg := &Config{}
 		configFile := fmt.Sprintf("/tmp/aws-creds-%s/config", test.RandStr(16))
-		tc.setupFunc(cfg, configFile)
+		defer tc.setupFunc(t, cfg, configFile)()
 		err := cfg.Load(configFile)
 		if tc.shouldErr && err == nil {
 			t.Errorf("%s: expected error", key)
 		} else if !tc.shouldErr && err != nil {
 			t.Errorf("%s: unexpected error: %s", key, err)
 		}
-		path := filepath.Dir(configFile)
-		_ = os.RemoveAll(path)
 	}
 }
 
@@ -71,24 +98,47 @@ func TestSave(t *testing.T) {
 
 	cases := map[string]testConfig{
 		"Success": {
-			func(cfg *Config, configFile string) {
+			func(t *testing.T, cfg *Config, configFile string) func() {
 				jsonMarshalIndent = origMarshal
+				return func() {
+					path := filepath.Dir(configFile)
+					parentPath := filepath.Dir(path)
+					if err := os.RemoveAll(parentPath); err != nil {
+						t.Fatalf("unexpected error: %s", err)
+					}
+				}
 			},
 			false,
 		},
 		"NoPermissionsError": {
-			func(cfg *Config, configFile string) {
+			func(t *testing.T, cfg *Config, configFile string) func() {
 				jsonMarshalIndent = origMarshal
 				path := filepath.Dir(configFile)
 				parentPath := filepath.Dir(path)
-				_ = os.MkdirAll(parentPath, 0200)
+				if err := os.MkdirAll(parentPath, 0200); err != nil {
+					t.Fatalf("unexpected error: %s", err)
+				}
+				return func() {
+					path := filepath.Dir(configFile)
+					parentPath := filepath.Dir(path)
+					if err := os.RemoveAll(parentPath); err != nil {
+						t.Fatalf("unexpected error: %s", err)
+					}
+				}
 			},
 			true,
 		},
 		"JSONMarshalError": {
-			func(cfg *Config, configFile string) {
+			func(t *testing.T, cfg *Config, configFile string) func() {
 				jsonMarshalIndent = func(i interface{}, a, b string) ([]byte, error) {
 					return nil, errors.New("err")
+				}
+				return func() {
+					path := filepath.Dir(configFile)
+					parentPath := filepath.Dir(path)
+					if err := os.RemoveAll(parentPath); err != nil {
+						t.Fatalf("unexpected error: %s", err)
+					}
 				}
 			},
 			true,
@@ -98,15 +148,12 @@ func TestSave(t *testing.T) {
 	for key, tc := range cases {
 		cfg := &Config{}
 		configFile := fmt.Sprintf("/tmp/aws-creds-%s/aws-creds/config", test.RandStr(16))
-		tc.setupFunc(cfg, configFile)
+		defer tc.setupFunc(t, cfg, configFile)()
 		err := cfg.Save(configFile)
 		if tc.shouldErr && err == nil {
 			t.Errorf("%s: expected error", key)
 		} else if !tc.shouldErr && err != nil {
 			t.Errorf("%s: unexpected error: %s", key, err)
 		}
-		path := filepath.Dir(configFile)
-		parentPath := filepath.Dir(path)
-		_ = os.RemoveAll(parentPath)
 	}
 }
