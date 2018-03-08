@@ -78,15 +78,17 @@ func TestLoad(t *testing.T) {
 	}
 
 	for key, tc := range cases {
-		conf := &Config{}
-		configFile := fmt.Sprintf("/tmp/aws-creds-%s/config", test.RandStr(16))
-		defer tc.setupFunc(t, conf, configFile)()
-		err := conf.Load(configFile)
-		if tc.shouldErr && err == nil {
-			t.Errorf("%s: expected error", key)
-		} else if !tc.shouldErr && err != nil {
-			t.Errorf("%s: unexpected error: %s", key, err)
-		}
+		func() {
+			conf := &Config{}
+			configFile := fmt.Sprintf("/tmp/aws-creds-%s/config", test.RandStr(16))
+			defer tc.setupFunc(t, conf, configFile)()
+			err := conf.Load(configFile)
+			if tc.shouldErr && err == nil {
+				t.Errorf("%s: expected error", key)
+			} else if !tc.shouldErr && err != nil {
+				t.Errorf("%s: unexpected error: %s", key, err)
+			}
+		}()
 	}
 }
 
@@ -146,14 +148,16 @@ func TestSave(t *testing.T) {
 	}
 
 	for key, tc := range cases {
-		conf := &Config{}
-		configFile := fmt.Sprintf("/tmp/aws-creds-%s/aws-creds/config", test.RandStr(16))
-		defer tc.setupFunc(t, conf, configFile)()
-		err := conf.Save(configFile)
-		if tc.shouldErr && err == nil {
-			t.Errorf("%s: expected error", key)
-		} else if !tc.shouldErr && err != nil {
-			t.Errorf("%s: unexpected error: %s", key, err)
-		}
+		func() {
+			conf := &Config{}
+			configFile := fmt.Sprintf("/tmp/aws-creds-%s/aws-creds/config", test.RandStr(16))
+			defer tc.setupFunc(t, conf, configFile)()
+			err := conf.Save(configFile)
+			if tc.shouldErr && err == nil {
+				t.Errorf("%s: expected error", key)
+			} else if !tc.shouldErr && err != nil {
+				t.Errorf("%s: unexpected error: %s", key, err)
+			}
+		}()
 	}
 }
