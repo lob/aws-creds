@@ -25,22 +25,21 @@ type Profile struct {
 // Conf is the global configuration shared across the app
 var Conf = &Config{}
 
-// ErrNotConfigured is thrown if this CLI hasn't been configured yet
-var ErrNotConfigured = errors.New("aws-creds hasn't been configured yet")
+var errNotConfigured = errors.New("aws-creds hasn't been configured yet")
 
 var jsonMarshalIndent = json.MarshalIndent
 
 // Load data from the config file into the Config struct
 func (conf *Config) Load(configFile string) error {
 	if _, err := os.Stat(configFile); os.IsNotExist(err) {
-		return ErrNotConfigured
+		return errNotConfigured
 	}
 	raw, err := ioutil.ReadFile(configFile)
 	if err != nil {
 		return err
 	}
 	if string(raw) == "" {
-		return ErrNotConfigured
+		return errNotConfigured
 	}
 
 	return json.Unmarshal(raw, &conf)
