@@ -22,9 +22,6 @@ type Profile struct {
 	RoleArn string `json:"role_arn"`
 }
 
-// Conf is the global configuration shared across the app
-var Conf = &Config{}
-
 const (
 	directoryPermissions = 0700
 	filePermissions      = 0644
