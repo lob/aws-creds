@@ -4,23 +4,17 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"math/rand"
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
+
+	test "github.com/lob/aws-creds/testing"
 )
 
 type testConfig struct {
 	setupFunc func(*Config, string)
 	shouldErr bool
 }
-
-var (
-	s       = rand.NewSource(time.Now().UnixNano())
-	r       = rand.New(s)
-	letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-)
 
 func TestLoad(t *testing.T) {
 	cases := map[string]testConfig{
@@ -56,7 +50,7 @@ func TestLoad(t *testing.T) {
 
 	for key, tc := range cases {
 		cfg := &Config{}
-		configFile := fmt.Sprintf("/tmp/aws-creds-%s/config", randStr())
+		configFile := fmt.Sprintf("/tmp/aws-creds-%s/config", test.RandStr(16))
 		tc.setupFunc(cfg, configFile)
 		err := cfg.Load(configFile)
 		if tc.shouldErr && err == nil {
@@ -103,7 +97,7 @@ func TestSave(t *testing.T) {
 
 	for key, tc := range cases {
 		cfg := &Config{}
-		configFile := fmt.Sprintf("/tmp/aws-creds-%s/aws-creds/config", randStr())
+		configFile := fmt.Sprintf("/tmp/aws-creds-%s/aws-creds/config", test.RandStr(16))
 		tc.setupFunc(cfg, configFile)
 		err := cfg.Save(configFile)
 		if tc.shouldErr && err == nil {
@@ -115,13 +109,4 @@ func TestSave(t *testing.T) {
 		parentPath := filepath.Dir(path)
 		_ = os.RemoveAll(parentPath)
 	}
-}
-
-func randStr() string {
-	n := 16
-	b := make([]rune, n)
-	for i := range b {
-		b[i] = letters[r.Intn(len(letters))]
-	}
-	return string(b)
 }
