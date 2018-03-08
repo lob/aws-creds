@@ -16,15 +16,17 @@ type testConfig struct {
 	shouldErr bool
 }
 
+const badPermissions = 0200
+
 func TestLoad(t *testing.T) {
 	cases := map[string]testConfig{
 		"Success": {
 			func(t *testing.T, conf *Config, configFile string) func() {
 				path := filepath.Dir(configFile)
-				if err := os.MkdirAll(path, 0700); err != nil {
+				if err := os.MkdirAll(path, directoryPermissions); err != nil {
 					t.Fatalf("unexpected error: %s", err)
 				}
-				if err := ioutil.WriteFile(configFile, []byte("{}"), 0644); err != nil {
+				if err := ioutil.WriteFile(configFile, []byte("{}"), filePermissions); err != nil {
 					t.Fatalf("unexpected error: %s", err)
 				}
 				return func() {
@@ -44,10 +46,10 @@ func TestLoad(t *testing.T) {
 		"NoReadError": {
 			func(t *testing.T, conf *Config, configFile string) func() {
 				path := filepath.Dir(configFile)
-				if err := os.MkdirAll(path, 0700); err != nil {
+				if err := os.MkdirAll(path, directoryPermissions); err != nil {
 					t.Fatalf("unexpected error: %s", err)
 				}
-				if err := ioutil.WriteFile(configFile, []byte("{}"), 0222); err != nil {
+				if err := ioutil.WriteFile(configFile, []byte("{}"), badPermissions); err != nil {
 					t.Fatalf("unexpected error: %s", err)
 				}
 				return func() {
@@ -61,10 +63,10 @@ func TestLoad(t *testing.T) {
 		"EmptyFileError": {
 			func(t *testing.T, conf *Config, configFile string) func() {
 				path := filepath.Dir(configFile)
-				if err := os.MkdirAll(path, 0700); err != nil {
+				if err := os.MkdirAll(path, directoryPermissions); err != nil {
 					t.Fatalf("unexpected error: %s", err)
 				}
-				if err := ioutil.WriteFile(configFile, []byte(""), 0644); err != nil {
+				if err := ioutil.WriteFile(configFile, []byte(""), filePermissions); err != nil {
 					t.Fatalf("unexpected error: %s", err)
 				}
 				return func() {
@@ -117,7 +119,7 @@ func TestSave(t *testing.T) {
 				jsonMarshalIndent = origMarshal
 				path := filepath.Dir(configFile)
 				parentPath := filepath.Dir(path)
-				if err := os.MkdirAll(parentPath, 0200); err != nil {
+				if err := os.MkdirAll(parentPath, badPermissions); err != nil {
 					t.Fatalf("unexpected error: %s", err)
 				}
 				return func() {

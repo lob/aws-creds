@@ -25,6 +25,11 @@ type Profile struct {
 // Conf is the global configuration shared across the app
 var Conf = &Config{}
 
+const (
+	directoryPermissions = 0700
+	filePermissions      = 0644
+)
+
 var errNotConfigured = errors.New("aws-creds hasn't been configured yet")
 
 var jsonMarshalIndent = json.MarshalIndent
@@ -48,7 +53,7 @@ func (conf *Config) Load(configFile string) error {
 // Save data from the Config struct into the config file
 func (conf *Config) Save(configFile string) error {
 	path := filepath.Dir(configFile)
-	err := os.MkdirAll(path, 0700)
+	err := os.MkdirAll(path, directoryPermissions)
 	if err != nil {
 		return err
 	}
@@ -58,5 +63,5 @@ func (conf *Config) Save(configFile string) error {
 		return err
 	}
 
-	return ioutil.WriteFile(configFile, raw, 0644)
+	return ioutil.WriteFile(configFile, raw, filePermissions)
 }
