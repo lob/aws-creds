@@ -1,19 +1,17 @@
 package config
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
 	"testing"
-
-	test "github.com/lob/aws-creds/testing"
 )
 
 const badPermissions = 0200
 
 func TestConfig(t *testing.T) {
-	path := fmt.Sprintf("/tmp/aws-creds-%s/config", test.RandStr(16))
+	path := path.Join(os.TempDir(), "aws-creds", "config")
 	defer cleanup(t, path)
 
 	conf1 := New(path)
@@ -51,7 +49,7 @@ func TestConfig(t *testing.T) {
 }
 
 func TestLoadErrors(t *testing.T) {
-	path := fmt.Sprintf("/tmp/aws-creds-%s/config", test.RandStr(16))
+	path := path.Join(os.TempDir(), "aws-creds", "config")
 	dir := filepath.Dir(path)
 	defer cleanup(t, path)
 
@@ -80,7 +78,7 @@ func TestLoadErrors(t *testing.T) {
 }
 
 func TestSaveErrors(t *testing.T) {
-	path := fmt.Sprintf("/tmp/aws-creds-%s/aws-creds/config", test.RandStr(16))
+	path := path.Join(os.TempDir(), "parent", "aws-creds", "config")
 	dir := filepath.Dir(path)
 	defer cleanup(t, dir)
 
