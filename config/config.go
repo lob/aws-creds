@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 )
 
-// Config contains the global configuration of this CLI
+// Config contains the configuration of this CLI.
 type Config struct {
 	Filepath            string
 	Username            string     `json:"username"`
@@ -17,7 +17,7 @@ type Config struct {
 	Profiles            []*Profile `json:"profiles"`
 }
 
-// Profile contains the configuration of each AWS profile
+// Profile contains the configuration of each AWS profile.
 type Profile struct {
 	Name    string `json:"name"`
 	RoleARN string `json:"role_arn"`
@@ -30,11 +30,12 @@ const (
 
 var errNotConfigured = errors.New("aws-creds hasn't been configured yet")
 
+// New creates a new Config reference with the given filepath.
 func New(path string) *Config {
 	return &Config{Filepath: path}
 }
 
-// Load data from the config file into the Config struct
+// Load loads data from the config file into the Config struct.
 func (c *Config) Load() error {
 	if _, err := os.Stat(c.Filepath); os.IsNotExist(err) {
 		return errNotConfigured
@@ -50,7 +51,7 @@ func (c *Config) Load() error {
 	return json.Unmarshal(raw, &c)
 }
 
-// Save data from the Config struct into the config file
+// Save saves data from the Config struct into the config file.
 func (c *Config) Save() error {
 	path := filepath.Dir(c.Filepath)
 	err := os.MkdirAll(path, directoryPermissions)
