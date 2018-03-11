@@ -1,7 +1,6 @@
 package config
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -11,155 +10,93 @@ import (
 	test "github.com/lob/aws-creds/testing"
 )
 
-type testConfig struct {
-	setupFunc func(*testing.T, *Config, string) func()
-	shouldErr bool
-}
-
 const badPermissions = 0200
 
-func TestLoad(t *testing.T) {
-	cases := map[string]testConfig{
-		"Success": {
-			func(t *testing.T, conf *Config, configFile string) func() {
-				path := filepath.Dir(configFile)
-				if err := os.MkdirAll(path, directoryPermissions); err != nil {
-					t.Fatalf("unexpected error: %s", err)
-				}
-				if err := ioutil.WriteFile(configFile, []byte("{}"), filePermissions); err != nil {
-					t.Fatalf("unexpected error: %s", err)
-				}
-				return func() {
-					if err := os.RemoveAll(path); err != nil {
-						t.Fatalf("unexpected error: %s", err)
-					}
-				}
-			},
-			false,
-		},
-		"NotExistError": {
-			func(t *testing.T, conf *Config, configFile string) func() {
-				return func() {}
-			},
-			true,
-		},
-		"NoReadError": {
-			func(t *testing.T, conf *Config, configFile string) func() {
-				path := filepath.Dir(configFile)
-				if err := os.MkdirAll(path, directoryPermissions); err != nil {
-					t.Fatalf("unexpected error: %s", err)
-				}
-				if err := ioutil.WriteFile(configFile, []byte("{}"), badPermissions); err != nil {
-					t.Fatalf("unexpected error: %s", err)
-				}
-				return func() {
-					if err := os.RemoveAll(path); err != nil {
-						t.Fatalf("unexpected error: %s", err)
-					}
-				}
-			},
-			true,
-		},
-		"EmptyFileError": {
-			func(t *testing.T, conf *Config, configFile string) func() {
-				path := filepath.Dir(configFile)
-				if err := os.MkdirAll(path, directoryPermissions); err != nil {
-					t.Fatalf("unexpected error: %s", err)
-				}
-				if err := ioutil.WriteFile(configFile, []byte(""), filePermissions); err != nil {
-					t.Fatalf("unexpected error: %s", err)
-				}
-				return func() {
-					if err := os.RemoveAll(path); err != nil {
-						t.Fatalf("unexpected error: %s", err)
-					}
-				}
-			},
-			true,
-		},
+func TestConfig(t *testing.T) {
+	path := fmt.Sprintf("/tmp/aws-creds-%s/config", test.RandStr(16))
+	defer cleanup(t, path)
+
+	conf1 := New(path)
+	conf1.Username = "test_user"
+	conf1.OktaOrgURL = "https://test.okta.com"
+	conf1.Profiles = []*Profile{
+		{"staging", "arn:staging"},
+		{"production", "arn:production"},
+	}
+	if err := conf1.Save(); err != nil {
+		t.Fatalf("unexpected error when saving config: %s", err)
 	}
 
-	for key, tc := range cases {
-		func() {
-			conf := &Config{}
-			configFile := fmt.Sprintf("/tmp/aws-creds-%s/config", test.RandStr(16))
-			defer tc.setupFunc(t, conf, configFile)()
-			err := conf.Load(configFile)
-			if tc.shouldErr && err == nil {
-				t.Errorf("%s: expected error", key)
-			} else if !tc.shouldErr && err != nil {
-				t.Errorf("%s: unexpected error: %s", key, err)
-			}
-		}()
+	conf2 := New(path)
+	if err := conf2.Load(); err != nil {
+		t.Fatalf("unexpected error when loading config: %s", err)
+	}
+
+	cases := []struct {
+		got, want string
+	}{
+		{conf2.Username, conf1.Username},
+		{conf2.OktaOrgURL, conf1.OktaOrgURL},
+		{conf2.Profiles[0].Name, conf1.Profiles[0].Name},
+		{conf2.Profiles[0].RoleARN, conf1.Profiles[0].RoleARN},
+		{conf2.Profiles[1].Name, conf1.Profiles[1].Name},
+		{conf2.Profiles[1].RoleARN, conf1.Profiles[1].RoleARN},
+	}
+
+	for _, tc := range cases {
+		if tc.got != tc.want {
+			t.Errorf("got %s, wanted %s", tc.got, tc.want)
+		}
 	}
 }
 
-func TestSave(t *testing.T) {
-	origMarshal := jsonMarshalIndent
-	defer func() {
-		jsonMarshalIndent = origMarshal
-	}()
+func TestLoadErrors(t *testing.T) {
+	path := fmt.Sprintf("/tmp/aws-creds-%s/config", test.RandStr(16))
+	dir := filepath.Dir(path)
+	defer cleanup(t, path)
 
-	cases := map[string]testConfig{
-		"Success": {
-			func(t *testing.T, conf *Config, configFile string) func() {
-				jsonMarshalIndent = origMarshal
-				return func() {
-					path := filepath.Dir(configFile)
-					parentPath := filepath.Dir(path)
-					if err := os.RemoveAll(parentPath); err != nil {
-						t.Fatalf("unexpected error: %s", err)
-					}
-				}
-			},
-			false,
-		},
-		"NoPermissionsError": {
-			func(t *testing.T, conf *Config, configFile string) func() {
-				jsonMarshalIndent = origMarshal
-				path := filepath.Dir(configFile)
-				parentPath := filepath.Dir(path)
-				if err := os.MkdirAll(parentPath, badPermissions); err != nil {
-					t.Fatalf("unexpected error: %s", err)
-				}
-				return func() {
-					path := filepath.Dir(configFile)
-					parentPath := filepath.Dir(path)
-					if err := os.RemoveAll(parentPath); err != nil {
-						t.Fatalf("unexpected error: %s", err)
-					}
-				}
-			},
-			true,
-		},
-		"JSONMarshalError": {
-			func(t *testing.T, conf *Config, configFile string) func() {
-				jsonMarshalIndent = func(i interface{}, a, b string) ([]byte, error) {
-					return nil, errors.New("err")
-				}
-				return func() {
-					path := filepath.Dir(configFile)
-					parentPath := filepath.Dir(path)
-					if err := os.RemoveAll(parentPath); err != nil {
-						t.Fatalf("unexpected error: %s", err)
-					}
-				}
-			},
-			true,
-		},
+	conf := New(path)
+
+	if err := conf.Load(); err == nil {
+		t.Errorf("expected error when loading non-existent config")
 	}
 
-	for key, tc := range cases {
-		func() {
-			conf := &Config{}
-			configFile := fmt.Sprintf("/tmp/aws-creds-%s/aws-creds/config", test.RandStr(16))
-			defer tc.setupFunc(t, conf, configFile)()
-			err := conf.Save(configFile)
-			if tc.shouldErr && err == nil {
-				t.Errorf("%s: expected error", key)
-			} else if !tc.shouldErr && err != nil {
-				t.Errorf("%s: unexpected error: %s", key, err)
-			}
-		}()
+	if err := os.MkdirAll(dir, directoryPermissions); err != nil {
+		t.Fatalf("unexpected error when creating a directory: %s", err)
+	}
+	if err := ioutil.WriteFile(path, []byte(""), filePermissions); err != nil {
+		t.Fatalf("unexpected error when writing file: %s", err)
+	}
+	if err := conf.Load(); err == nil {
+		t.Errorf("expected error when loading empty config")
+	}
+
+	if err := os.Chmod(path, badPermissions); err != nil {
+		t.Fatalf("unexpected error when changing permissions of file: %s", err)
+	}
+	if err := conf.Load(); err == nil {
+		t.Errorf("expected error when loading config with bad permissions")
+	}
+}
+
+func TestSaveErrors(t *testing.T) {
+	path := fmt.Sprintf("/tmp/aws-creds-%s/aws-creds/config", test.RandStr(16))
+	dir := filepath.Dir(path)
+	defer cleanup(t, dir)
+
+	conf := New(path)
+
+	if err := os.MkdirAll(filepath.Dir(dir), badPermissions); err != nil {
+		t.Fatalf("unexpected error when making directory: %s", err)
+	}
+	if err := conf.Save(); err == nil {
+		t.Errorf("expected error when saving config with bad permissions")
+	}
+}
+
+func cleanup(t *testing.T, path string) {
+	dir := filepath.Dir(path)
+	if err := os.RemoveAll(dir); err != nil {
+		t.Fatalf("unexpected error when cleaning up: %s", err)
 	}
 }

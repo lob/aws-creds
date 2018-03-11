@@ -10,6 +10,7 @@ import (
 
 // Config contains the global configuration of this CLI
 type Config struct {
+	Filepath            string
 	Username            string     `json:"username"`
 	OktaOrgURL          string     `json:"okta_org_url"`
 	PreferredFactorType string     `json:"preferred_factor_type"`
@@ -19,7 +20,7 @@ type Config struct {
 // Profile contains the configuration of each AWS profile
 type Profile struct {
 	Name    string `json:"name"`
-	RoleArn string `json:"role_arn"`
+	RoleARN string `json:"role_arn"`
 }
 
 const (
@@ -29,14 +30,16 @@ const (
 
 var errNotConfigured = errors.New("aws-creds hasn't been configured yet")
 
-var jsonMarshalIndent = json.MarshalIndent
+func New(path string) *Config {
+	return &Config{Filepath: path}
+}
 
 // Load data from the config file into the Config struct
-func (conf *Config) Load(configFile string) error {
-	if _, err := os.Stat(configFile); os.IsNotExist(err) {
+func (c *Config) Load() error {
+	if _, err := os.Stat(c.Filepath); os.IsNotExist(err) {
 		return errNotConfigured
 	}
-	raw, err := ioutil.ReadFile(configFile)
+	raw, err := ioutil.ReadFile(c.Filepath)
 	if err != nil {
 		return err
 	}
@@ -44,21 +47,21 @@ func (conf *Config) Load(configFile string) error {
 		return errNotConfigured
 	}
 
-	return json.Unmarshal(raw, &conf)
+	return json.Unmarshal(raw, &c)
 }
 
 // Save data from the Config struct into the config file
-func (conf *Config) Save(configFile string) error {
-	path := filepath.Dir(configFile)
+func (c *Config) Save() error {
+	path := filepath.Dir(c.Filepath)
 	err := os.MkdirAll(path, directoryPermissions)
 	if err != nil {
 		return err
 	}
 
-	raw, err := jsonMarshalIndent(conf, "", "  ")
+	raw, err := json.MarshalIndent(c, "", "  ")
 	if err != nil {
 		return err
 	}
 
-	return ioutil.WriteFile(configFile, raw, filePermissions)
+	return ioutil.WriteFile(c.Filepath, raw, filePermissions)
 }
