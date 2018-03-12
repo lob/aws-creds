@@ -11,8 +11,8 @@ import (
 // Config contains the configuration of this CLI.
 type Config struct {
 	Username            string     `json:"username"`
-	OktaOrgURL          string     `json:"okta_org_url"`
-	PreferredFactorType string     `json:"preferred_factor_type"`
+	OktaOrgURL          string     `json:"okta_org_url,omitempty"`
+	PreferredFactorType string     `json:"preferred_factor_type,omitempty"`
 	Profiles            []*Profile `json:"profiles"`
 	filepath            string
 }
