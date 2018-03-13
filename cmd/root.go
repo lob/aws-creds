@@ -9,8 +9,8 @@ import (
 	"github.com/lob/aws-creds/config"
 )
 
-// CMD contains the necessary information for the CLI to function.
-type CMD struct {
+// Cmd contains the necessary information for the CLI to function.
+type Cmd struct {
 	Command string
 	Config  *config.Config
 	In      io.Reader
@@ -44,7 +44,7 @@ func execute(args []string, in io.Reader, out io.Writer) error {
 		return nil
 	}
 
-	cmd := &CMD{In: in, Out: out}
+	cmd := &Cmd{In: in, Out: out}
 	cmd.Command = ""
 	if len(args) > 0 {
 		cmd.Command = args[0]

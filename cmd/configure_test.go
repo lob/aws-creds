@@ -16,7 +16,7 @@ func TestExecuteConfigure(t *testing.T) {
 	defer cleanup(t, path)
 	conf := config.New(path)
 
-	cmd := fakeCMD("test_user\ntest\nstaging\narn:staging\nn\n", conf)
+	cmd := fakeCmd("test_user\ntest\nstaging\narn:staging\nn\n", conf)
 	if err := executeConfigure(cmd); err != nil {
 		t.Errorf("unexpected error when configuring with 1 profile: %s", err)
 	}
@@ -27,7 +27,7 @@ func TestExecuteConfigure(t *testing.T) {
 		t.Errorf("got len(conf.Profiles) = %d, wanted %d", len(conf.Profiles), 1)
 	}
 
-	cmd = fakeCMD("test_user\ntest\nstaging\narn:staging\ny\nproduction\narn:production\nn\n", conf)
+	cmd = fakeCmd("test_user\ntest\nstaging\narn:staging\ny\nproduction\narn:production\nn\n", conf)
 	if err := executeConfigure(cmd); err != nil {
 		t.Errorf("unexpected error when configuring with 2 profiles: %s", err)
 	}
@@ -35,7 +35,7 @@ func TestExecuteConfigure(t *testing.T) {
 		t.Errorf("got len(conf.Profiles) = %d, wanted %d", len(conf.Profiles), 2)
 	}
 
-	cmd = fakeCMD("test_user\ntest\nsandbox\narn:sandbox\nn\n", conf)
+	cmd = fakeCmd("test_user\ntest\nsandbox\narn:sandbox\nn\n", conf)
 	if err := executeConfigure(cmd); err != nil {
 		t.Errorf("unexpected error when configuring with an additional profile: %s", err)
 	}
@@ -44,9 +44,9 @@ func TestExecuteConfigure(t *testing.T) {
 	}
 }
 
-func fakeCMD(inStr string, conf *config.Config) *CMD {
+func fakeCmd(inStr string, conf *config.Config) *Cmd {
 	in := bufio.NewReader(strings.NewReader(inStr))
-	return &CMD{
+	return &Cmd{
 		Command: configureCommand,
 		Config:  conf,
 		In:      in,

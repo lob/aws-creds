@@ -8,7 +8,7 @@ import (
 	"github.com/lob/aws-creds/input"
 )
 
-func executeConfigure(cmd *CMD) error {
+func executeConfigure(cmd *Cmd) error {
 	fmt.Println("Configuring global settings...")
 	err := configureGlobal(cmd)
 	if err != nil {
@@ -28,7 +28,7 @@ func executeConfigure(cmd *CMD) error {
 	return err
 }
 
-func configureGlobal(cmd *CMD) error {
+func configureGlobal(cmd *Cmd) error {
 	username, err := input.Prompt("Okta username: ", cmd.In, cmd.Out)
 	if err != nil {
 		return err
@@ -46,7 +46,7 @@ func configureGlobal(cmd *CMD) error {
 	return nil
 }
 
-func configureProfiles(cmd *CMD) error {
+func configureProfiles(cmd *Cmd) error {
 	cont := true
 	for cont {
 		name, err := input.Prompt("Profile name: ", cmd.In, cmd.Out)
