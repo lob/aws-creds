@@ -40,7 +40,7 @@ func TestConfig(t *testing.T) {
 	}
 
 	reader := bufio.NewReader(strings.NewReader("username\norg\nprofile\narn\nn\n"))
-	if err := execute([]string{"configure"}, reader, os.Stdout); err != nil {
+	if err := execute([]string{configureCommand}, reader, os.Stdout); err != nil {
 		t.Errorf("unexpected error when configuring with invalid custom config: %s", err)
 	}
 }

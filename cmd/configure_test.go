@@ -47,7 +47,7 @@ func TestExecuteConfigure(t *testing.T) {
 func fakeCMD(inStr string, conf *config.Config) *CMD {
 	in := bufio.NewReader(strings.NewReader(inStr))
 	return &CMD{
-		Command: "configure",
+		Command: configureCommand,
 		Config:  conf,
 		In:      in,
 		Out:     os.Stdout,

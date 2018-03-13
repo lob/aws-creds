@@ -18,6 +18,11 @@ type CMD struct {
 	Out     io.Writer
 }
 
+const (
+	configureCommand = "configure"
+	refreshCommand   = ""
+)
+
 var (
 	defaultConfigFilepath = os.Getenv("HOME") + "/.aws-creds/config"
 	configFilepath        = flag.String("config", defaultConfigFilepath, "config file")
@@ -48,14 +53,14 @@ func execute(args []string, in io.Reader, out io.Writer) error {
 
 	cmd.Config = config.New(*configFilepath)
 	err := cmd.Config.Load()
-	if err != nil && cmd.Command != "configure" {
+	if err != nil && cmd.Command != configureCommand {
 		return err
 	}
 
 	switch cmd.Command {
-	case "configure":
+	case configureCommand:
 		return executeConfigure(cmd)
-	case "":
+	case refreshCommand:
 		return nil
 	default:
 		return errors.New("unknown command")
