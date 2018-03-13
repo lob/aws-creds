@@ -52,14 +52,14 @@ func execute(args []string, in io.Reader, out io.Writer) error {
 
 	cmd.Config = config.New(*configFilepath)
 	err := cmd.Config.Load()
-	if err != nil && cmd.Command != configureCommand {
-		return err
-	}
 
 	switch cmd.Command {
 	case configureCommand:
 		return executeConfigure(cmd)
 	case refreshCommand:
+		if err != nil {
+			return err
+		}
 		return nil
 	default:
 		return fmt.Errorf("unknown command: %s", cmd.Command)
