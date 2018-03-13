@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -63,6 +62,6 @@ func execute(args []string, in io.Reader, out io.Writer) error {
 	case refreshCommand:
 		return nil
 	default:
-		return errors.New("unknown command")
+		return fmt.Errorf("unknown command: %s", cmd.Command)
 	}
 }
