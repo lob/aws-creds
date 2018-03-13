@@ -14,7 +14,6 @@ func executeConfigure(cmd *CMD) error {
 	if err != nil {
 		return err
 	}
-	fmt.Print("\n")
 
 	fmt.Println("Configuring profile settings...")
 	err = configureProfiles(cmd)
@@ -42,6 +41,8 @@ func configureGlobal(cmd *CMD) error {
 
 	cmd.Config.Username = username
 	cmd.Config.OktaOrgURL = fmt.Sprintf("https://%s.okta.com", org)
+
+	fmt.Print("\n")
 	return nil
 }
 
