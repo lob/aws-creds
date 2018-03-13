@@ -17,12 +17,9 @@ func executeConfigure(cmd *CMD) error {
 	fmt.Print("\n")
 
 	fmt.Println("Configuring profile settings...")
-	cont := true
-	for cont {
-		cont, err = configureProfile(cmd)
-		if err != nil {
-			return err
-		}
+	err = configureProfiles(cmd)
+	if err != nil {
+		return err
 	}
 
 	err = cmd.Config.Save()
@@ -48,37 +45,41 @@ func configureGlobal(cmd *CMD) error {
 	return nil
 }
 
-func configureProfile(cmd *CMD) (bool, error) {
-	name, err := input.Prompt("Profile name: ", cmd.In, cmd.Out)
-	if err != nil {
-		return false, err
-	}
-
-	roleARN, err := input.Prompt("Role ARN (e.g. arn:aws:iam::123456789001:role/EngineeringRole): ", cmd.In, cmd.Out)
-	if err != nil {
-		return false, err
-	}
-
-	found := false
-	for _, p := range cmd.Config.Profiles {
-		if p.Name == name {
-			found = true
-			p.RoleARN = roleARN
-			break
+func configureProfiles(cmd *CMD) error {
+	cont := true
+	for cont {
+		name, err := input.Prompt("Profile name: ", cmd.In, cmd.Out)
+		if err != nil {
+			return err
 		}
-	}
-	if !found {
-		cmd.Config.Profiles = append(cmd.Config.Profiles, &config.Profile{
-			Name:    name,
-			RoleARN: roleARN,
-		})
-	}
 
-	cont, err := input.Prompt("Do you want to configure more profiles? [y/N]: ", cmd.In, cmd.Out)
-	if err != nil {
-		return false, err
-	}
-	fmt.Print("\n")
+		roleARN, err := input.Prompt("Role ARN (e.g. arn:aws:iam::123456789001:role/EngineeringRole): ", cmd.In, cmd.Out)
+		if err != nil {
+			return err
+		}
 
-	return strings.ToLower(cont)[0] == 'y', nil
+		found := false
+		for _, p := range cmd.Config.Profiles {
+			if p.Name == name {
+				found = true
+				p.RoleARN = roleARN
+				break
+			}
+		}
+		if !found {
+			cmd.Config.Profiles = append(cmd.Config.Profiles, &config.Profile{
+				Name:    name,
+				RoleARN: roleARN,
+			})
+		}
+
+		more, err := input.Prompt("Do you want to configure more profiles? [y/N]: ", cmd.In, cmd.Out)
+		if err != nil {
+			return err
+		}
+		fmt.Print("\n")
+
+		cont = strings.ToLower(more)[0] == 'y'
+	}
+	return nil
 }
