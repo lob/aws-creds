@@ -53,5 +53,5 @@ func TestUnknownCommand(t *testing.T) {
 
 func resetFlags() {
 	*help = false
-	*configFilepath = ""
+	*configFilepath = defaultConfigFilepath
 }

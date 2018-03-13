@@ -18,10 +18,11 @@ type CMD struct {
 	Out     io.Writer
 }
 
-const defaultConfigFilepath = "/.aws-creds/config"
-
-var configFilepath = flag.String("config", "", fmt.Sprintf("config file (default is $HOME%s)", defaultConfigFilepath))
-var help = flag.Bool("help", false, "print this help text")
+var (
+	defaultConfigFilepath = os.Getenv("HOME") + "/.aws-creds/config"
+	configFilepath        = flag.String("config", defaultConfigFilepath, "config file")
+	help                  = flag.Bool("help", false, "print this help text")
+)
 
 // Execute runs the CLI application.
 func Execute() {
@@ -37,10 +38,6 @@ func execute(args []string, in io.Reader, out io.Writer) error {
 	if *help {
 		flag.Usage()
 		return nil
-	}
-
-	if *configFilepath == "" {
-		*configFilepath = os.Getenv("HOME") + defaultConfigFilepath
 	}
 
 	cmd := &CMD{In: in, Out: out}
