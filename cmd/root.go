@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -13,6 +14,7 @@ import (
 type Cmd struct {
 	Command string
 	Config  *config.Config
+	Profile string
 	In      io.Reader
 	Out     io.Writer
 }
@@ -25,6 +27,7 @@ const (
 var (
 	defaultConfigFilepath = os.Getenv("HOME") + "/.aws-creds/config"
 	configFilepath        = flag.String("config", defaultConfigFilepath, "config file")
+	profile               = flag.String("p", "", "AWS profile to retrieve credentials for (required)")
 	help                  = flag.Bool("help", false, "print this help text")
 )
 
@@ -44,13 +47,17 @@ func execute(args []string, in io.Reader, out io.Writer) error {
 		return nil
 	}
 
-	cmd := &Cmd{In: in, Out: out}
-	cmd.Command = ""
+	cmd := &Cmd{
+		Command: "",
+		Config:  config.New(*configFilepath),
+		Profile: *profile,
+		In:      in,
+		Out:     out,
+	}
 	if len(args) > 0 {
 		cmd.Command = args[0]
 	}
 
-	cmd.Config = config.New(*configFilepath)
 	err := cmd.Config.Load()
 
 	switch cmd.Command {
@@ -60,7 +67,10 @@ func execute(args []string, in io.Reader, out io.Writer) error {
 		if err != nil {
 			return err
 		}
-		return nil
+		if cmd.Profile == "" {
+			return errors.New("profile is required")
+		}
+		return executeRefresh(cmd)
 	default:
 		return fmt.Errorf("unknown command: %s", cmd.Command)
 	}

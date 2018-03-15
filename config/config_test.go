@@ -16,7 +16,8 @@ func TestConfig(t *testing.T) {
 
 	conf1 := New(path)
 	conf1.Username = "test_user"
-	conf1.OktaOrgURL = "https://test.okta.com"
+	conf1.OktaHost = "https://test.okta.com"
+	conf1.OktaAppPath = "/home/amazon_aws/0oa54k1gk2ukOJ9nGDt7/252"
 	conf1.Profiles = []*Profile{
 		{"staging", "arn:staging"},
 		{"production", "arn:production"},
@@ -34,7 +35,8 @@ func TestConfig(t *testing.T) {
 		got, want string
 	}{
 		{conf2.Username, conf1.Username},
-		{conf2.OktaOrgURL, conf1.OktaOrgURL},
+		{conf2.OktaHost, conf1.OktaHost},
+		{conf2.OktaAppPath, conf1.OktaAppPath},
 		{conf2.Profiles[0].Name, conf1.Profiles[0].Name},
 		{conf2.Profiles[0].RoleARN, conf1.Profiles[0].RoleARN},
 		{conf2.Profiles[1].Name, conf1.Profiles[1].Name},

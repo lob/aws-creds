@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"path"
 	"path/filepath"
@@ -16,7 +17,7 @@ func TestExecuteConfigure(t *testing.T) {
 	defer cleanup(t, path)
 	conf := config.New(path)
 
-	cmd := fakeCmd("test_user\ntest\nstaging\narn:staging\nn\n", conf)
+	cmd := fakeCmd("test_user\n%s\nstaging\narn:staging\nn\n", conf)
 	if err := executeConfigure(cmd); err != nil {
 		t.Errorf("unexpected error when configuring with 1 profile: %s", err)
 	}
@@ -27,7 +28,7 @@ func TestExecuteConfigure(t *testing.T) {
 		t.Errorf("got len(conf.Profiles) = %d, wanted %d", len(conf.Profiles), 1)
 	}
 
-	cmd = fakeCmd("test_user\ntest\nstaging\narn:staging\ny\nproduction\narn:production\nn\n", conf)
+	cmd = fakeCmd("test_user\n%s\nstaging\narn:staging\ny\nproduction\narn:production\nn\n", conf)
 	if err := executeConfigure(cmd); err != nil {
 		t.Errorf("unexpected error when configuring with 2 profiles: %s", err)
 	}
@@ -35,17 +36,22 @@ func TestExecuteConfigure(t *testing.T) {
 		t.Errorf("got len(conf.Profiles) = %d, wanted %d", len(conf.Profiles), 2)
 	}
 
-	cmd = fakeCmd("test_user\ntest\nsandbox\narn:sandbox\nn\n", conf)
+	cmd = fakeCmd("test_user\n%s\nsandbox\narn:sandbox\nn\n", conf)
 	if err := executeConfigure(cmd); err != nil {
 		t.Errorf("unexpected error when configuring with an additional profile: %s", err)
 	}
 	if len(conf.Profiles) != 3 {
 		t.Errorf("got len(conf.Profiles) = %d, wanted %d", len(conf.Profiles), 3)
 	}
+
+	cmd = fakeCmd("%s\nbad_url\nsandbox\narn:sandbox\nn\n", conf)
+	if err := executeConfigure(cmd); err == nil {
+		t.Errorf("expected error when configuring with bad app URL")
+	}
 }
 
 func fakeCmd(inStr string, conf *config.Config) *Cmd {
-	in := bufio.NewReader(strings.NewReader(inStr))
+	in := bufio.NewReader(strings.NewReader(fmt.Sprintf(inStr, exampleEmbedLink)))
 	return &Cmd{
 		Command: configureCommand,
 		Config:  conf,

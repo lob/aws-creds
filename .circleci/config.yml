@@ -28,3 +28,5 @@ jobs:
           key: vendor-{{ checksum "Gopkg.lock" }}
           paths:
             - "/go/src/github.com/lob/aws-creds/vendor"
+      - store_artifacts:
+          path: coverage.out

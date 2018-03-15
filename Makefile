@@ -15,7 +15,7 @@ build:
 
 lint:
 	@echo "---> Linting... this might take a minute"
-	gometalinter --vendor --tests --deadline=2m $(LFLAGS) $(DIRS)
+	gometalinter --vendor --tests --deadline=2m --exclude=crypto $(LFLAGS) $(DIRS)
 
 test:
 	@echo "---> Testing"

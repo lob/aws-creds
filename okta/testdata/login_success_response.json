@@ -1,0 +1,74 @@
+{
+  "stateToken": "7kPl1C30Dpcx9A23Vw88BrDfJsIB8QWS0ITDWbHaaM",
+  "expiresAt": "2018-01-01T00:00:00.000Z",
+  "status": "MFA_REQUIRED",
+  "_embedded": {
+    "user": {
+      "id": "4QBKIXDI8CB3DINM7mNk",
+      "passwordChanged": "2018-01-01T00:00:00.000Z",
+      "profile": {
+        "login": "user@test.com",
+        "firstName": "Test",
+        "lastName": "User",
+        "locale": "en",
+        "timeZone": "America/Los_Angeles"
+      }
+    },
+    "factors": [
+      {
+        "id": "iTVCugXgaY0vuQSFeg05",
+        "factorType": "token:software:totp",
+        "provider": "GOOGLE",
+        "vendorName": "GOOGLE",
+        "profile": {
+          "credentialId": "user@test.com"
+        },
+        "_links": {
+          "verify": {
+            "href": "https://test.okta.com/api/v1/authn/factors/iTVCugXgaY0vuQSFeg05/verify",
+            "hints": {
+              "allow": [
+                "POST"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": "AjHNVCDLwcdNPqc8cbc7",
+        "factorType": "sms",
+        "provider": "OKTA",
+        "vendorName": "OKTA",
+        "profile": {
+          "phoneNumber": "+1 XXX-XXX-1234"
+        },
+        "_links": {
+          "verify": {
+            "href": "https://test.okta.com/api/v1/authn/factors/AjHNVCDLwcdNPqc8cbc7/verify",
+            "hints": {
+              "allow": [
+                "POST"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "policy": {
+      "allowRememberDevice": true,
+      "rememberDeviceLifetimeInMinutes": 1800,
+      "rememberDeviceByDefault": false,
+      "factorsPolicyInfo": {}
+    }
+  },
+  "_links": {
+    "cancel": {
+      "href": "https://test.okta.com/api/v1/authn/cancel",
+      "hints": {
+        "allow": [
+          "POST"
+        ]
+      }
+    }
+  }
+}

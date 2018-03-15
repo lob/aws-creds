@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"syscall"
 	"testing"
 )
 
@@ -46,5 +47,20 @@ func TestPromptErrors(t *testing.T) {
 	_, err = Prompt("Prompt: ", &bin, errWriter{})
 	if err == nil {
 		t.Errorf("expected error when prompting with error writer")
+	}
+}
+
+func TestPromptPassword(t *testing.T) {
+	var bout bytes.Buffer
+	wantOut := "Prompt: "
+
+	_, err := PromptPassword(wantOut, syscall.Stdin, &bout)
+	if err == nil {
+		t.Fatalf("expected error when prompting for password with stdin: %s", err)
+	}
+
+	gotOut := bout.String()
+	if gotOut != wantOut {
+		t.Errorf("got %s, wanted %s", gotOut, wantOut)
 	}
 }

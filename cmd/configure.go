@@ -2,11 +2,16 @@ package cmd
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/lob/aws-creds/config"
 	"github.com/lob/aws-creds/input"
 )
+
+const exampleEmbedLink = "https://example.okta.com/home/amazon_aws/0oa54k1gk2ukOJ9nGDt7/252"
+
+var oktaRegex = regexp.MustCompile(`(https://.*\.okta\.com)(/home/[^/]*/[^/]*/[^/]*)`)
 
 func executeConfigure(cmd *Cmd) error {
 	fmt.Println("Configuring global settings...")
@@ -21,11 +26,7 @@ func executeConfigure(cmd *Cmd) error {
 		return err
 	}
 
-	err = cmd.Config.Save()
-	if err == nil {
-		fmt.Println("Configuration saved!")
-	}
-	return err
+	return cmd.Config.Save()
 }
 
 func configureGlobal(cmd *Cmd) error {
@@ -34,13 +35,18 @@ func configureGlobal(cmd *Cmd) error {
 		return err
 	}
 
-	org, err := input.Prompt("Okta org (e.g. for https://example.okta.com, the org is example): ", cmd.In, cmd.Out)
+	link, err := input.Prompt(fmt.Sprintf("Okta AWS Embed Link (e.g. %s): ", exampleEmbedLink), cmd.In, cmd.Out)
 	if err != nil {
 		return err
 	}
+	matches := oktaRegex.FindStringSubmatch(link)
+	if len(matches) != 3 {
+		return fmt.Errorf("%s doesn't look like an Embed Link", link)
+	}
 
 	cmd.Config.Username = username
-	cmd.Config.OktaOrgURL = fmt.Sprintf("https://%s.okta.com", org)
+	cmd.Config.OktaHost = matches[1]
+	cmd.Config.OktaAppPath = matches[2]
 
 	fmt.Print("\n")
 	return nil
