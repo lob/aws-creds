@@ -2,11 +2,15 @@ package cmd
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/lob/aws-creds/config"
-	"github.com/lob/aws-creds/input"
 )
+
+const exampleEmbedLink = "https://example.okta.com/home/amazon_aws/0oa54k1gk2ukOJ9nGDt7/252"
+
+var oktaRegex = regexp.MustCompile(`(https://.*\.okta\.com)(/home/[^/]*/[^/]*/[^/]*)`)
 
 func executeConfigure(cmd *Cmd) error {
 	fmt.Println("Configuring global settings...")
@@ -21,26 +25,28 @@ func executeConfigure(cmd *Cmd) error {
 		return err
 	}
 
-	err = cmd.Config.Save()
-	if err == nil {
-		fmt.Println("Configuration saved!")
-	}
-	return err
+	return cmd.Config.Save()
 }
 
 func configureGlobal(cmd *Cmd) error {
-	username, err := input.Prompt("Okta username: ", cmd.In, cmd.Out)
+	username, err := cmd.Input.Prompt("Okta username: ")
 	if err != nil {
 		return err
 	}
 
-	org, err := input.Prompt("Okta org (e.g. for https://example.okta.com, the org is example): ", cmd.In, cmd.Out)
+	prompt := fmt.Sprintf("Okta AWS Embed Link (e.g. %s): ", exampleEmbedLink)
+	link, err := cmd.Input.Prompt(prompt)
 	if err != nil {
 		return err
+	}
+	matches := oktaRegex.FindStringSubmatch(link)
+	if len(matches) != 3 {
+		return fmt.Errorf("%s doesn't look like an Embed Link", link)
 	}
 
 	cmd.Config.Username = username
-	cmd.Config.OktaOrgURL = fmt.Sprintf("https://%s.okta.com", org)
+	cmd.Config.OktaHost = matches[1]
+	cmd.Config.OktaAppPath = matches[2]
 
 	fmt.Print("\n")
 	return nil
@@ -49,12 +55,12 @@ func configureGlobal(cmd *Cmd) error {
 func configureProfiles(cmd *Cmd) error {
 	cont := true
 	for cont {
-		name, err := input.Prompt("Profile name: ", cmd.In, cmd.Out)
+		name, err := cmd.Input.Prompt("Profile name: ")
 		if err != nil {
 			return err
 		}
 
-		roleARN, err := input.Prompt("Role ARN (e.g. arn:aws:iam::123456789001:role/EngineeringRole): ", cmd.In, cmd.Out)
+		roleARN, err := cmd.Input.Prompt("Role ARN (e.g. arn:aws:iam::123456789001:role/EngineeringRole): ")
 		if err != nil {
 			return err
 		}
@@ -74,7 +80,7 @@ func configureProfiles(cmd *Cmd) error {
 			})
 		}
 
-		more, err := input.Prompt("Do you want to configure more profiles? [y/N]: ", cmd.In, cmd.Out)
+		more, err := cmd.Input.Prompt("Do you want to configure more profiles? [y/N]: ")
 		if err != nil {
 			return err
 		}

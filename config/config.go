@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -11,7 +12,8 @@ import (
 // Config contains the configuration of this CLI.
 type Config struct {
 	Username            string     `json:"username"`
-	OktaOrgURL          string     `json:"okta_org_url,omitempty"`
+	OktaHost            string     `json:"okta_host,omitempty"`
+	OktaAppPath         string     `json:"okta_app_path,omitempty"`
 	PreferredFactorType string     `json:"preferred_factor_type,omitempty"`
 	Profiles            []*Profile `json:"profiles"`
 	filepath            string
@@ -64,5 +66,10 @@ func (c *Config) Save() error {
 		return err
 	}
 
-	return ioutil.WriteFile(c.filepath, raw, filePermissions)
+	err = ioutil.WriteFile(c.filepath, raw, filePermissions)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Configuration saved!")
+	return nil
 }
