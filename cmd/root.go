@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -66,9 +65,6 @@ func execute(args []string, in io.Reader, out io.Writer) error {
 	case refreshCommand:
 		if err != nil {
 			return err
-		}
-		if cmd.Profile == "" {
-			return errors.New("profile is required")
 		}
 		return executeRefresh(cmd)
 	default:

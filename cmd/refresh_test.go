@@ -41,4 +41,10 @@ func TestExecuteRefresh(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected error when executing refresh with an invalid profile: %s", err)
 	}
+
+	cmd.Profile = ""
+	err = executeRefresh(cmd)
+	if err == nil {
+		t.Fatalf("expected error when executing refresh without a profile: %s", err)
+	}
 }

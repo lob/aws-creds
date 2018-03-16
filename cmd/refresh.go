@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"syscall"
@@ -15,6 +16,9 @@ func executeRefresh(cmd *Cmd) error {
 }
 
 func executeRefreshWithPrompt(cmd *Cmd, prompt func(string, int, io.Writer) (string, error)) error {
+	if cmd.Profile == "" {
+		return errors.New("profile is required")
+	}
 	var profile *config.Profile
 	for _, p := range cmd.Config.Profiles {
 		if p.Name == cmd.Profile {

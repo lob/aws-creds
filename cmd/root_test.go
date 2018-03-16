@@ -61,10 +61,6 @@ func TestProfile(t *testing.T) {
 		t.Fatalf("unexpected error when configuring for profile tests: %s", err)
 	}
 
-	if err := execute([]string{refreshCommand}, os.Stdin, os.Stdout); err == nil {
-		t.Errorf("expected error when executing refresh command without a profile set")
-	}
-
 	*profile = "profile"
 
 	if err := execute([]string{refreshCommand}, os.Stdin, os.Stdout); err == nil {
