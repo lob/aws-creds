@@ -3,10 +3,10 @@ package cmd
 import (
 	"flag"
 	"fmt"
-	"io"
 	"os"
 
 	"github.com/lob/aws-creds/config"
+	"github.com/lob/aws-creds/input"
 )
 
 // Cmd contains the necessary information for the CLI to function.
@@ -14,8 +14,7 @@ type Cmd struct {
 	Command string
 	Config  *config.Config
 	Profile string
-	In      io.Reader
-	Out     io.Writer
+	Input   input.Prompter
 }
 
 const (
@@ -31,16 +30,16 @@ var (
 )
 
 // Execute runs the CLI application.
-func Execute() {
+func Execute(p input.Prompter) {
 	flag.Parse()
 
-	if err := execute(flag.Args(), os.Stdin, os.Stdout); err != nil {
+	if err := execute(flag.Args(), p); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 }
 
-func execute(args []string, in io.Reader, out io.Writer) error {
+func execute(args []string, p input.Prompter) error {
 	if *help {
 		flag.Usage()
 		return nil
@@ -50,8 +49,7 @@ func execute(args []string, in io.Reader, out io.Writer) error {
 		Command: "",
 		Config:  config.New(*configFilepath),
 		Profile: *profile,
-		In:      in,
-		Out:     out,
+		Input:   p,
 	}
 	if len(args) > 0 {
 		cmd.Command = args[0]

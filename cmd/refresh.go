@@ -3,19 +3,12 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"io"
-	"syscall"
 
 	"github.com/lob/aws-creds/config"
-	"github.com/lob/aws-creds/input"
 	"github.com/lob/aws-creds/okta"
 )
 
 func executeRefresh(cmd *Cmd) error {
-	return executeRefreshWithPrompt(cmd, input.PromptPassword)
-}
-
-func executeRefreshWithPrompt(cmd *Cmd, prompt func(string, int, io.Writer) (string, error)) error {
 	if cmd.Profile == "" {
 		return errors.New("profile is required")
 	}
@@ -30,7 +23,8 @@ func executeRefreshWithPrompt(cmd *Cmd, prompt func(string, int, io.Writer) (str
 		return fmt.Errorf("profile %s not configured", cmd.Profile)
 	}
 
-	password, err := prompt(fmt.Sprintf("Enter password for %s: ", cmd.Config.Username), syscall.Stdin, cmd.Out)
+	msg := fmt.Sprintf("Enter password for %s: ", cmd.Config.Username)
+	password, err := cmd.Input.PromptPassword(msg)
 	if err != nil {
 		return err
 	}

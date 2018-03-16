@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/lob/aws-creds/config"
-	"github.com/lob/aws-creds/input"
 )
 
 const exampleEmbedLink = "https://example.okta.com/home/amazon_aws/0oa54k1gk2ukOJ9nGDt7/252"
@@ -30,13 +29,13 @@ func executeConfigure(cmd *Cmd) error {
 }
 
 func configureGlobal(cmd *Cmd) error {
-	username, err := input.Prompt("Okta username: ", cmd.In, cmd.Out)
+	username, err := cmd.Input.Prompt("Okta username: ")
 	if err != nil {
 		return err
 	}
 
 	prompt := fmt.Sprintf("Okta AWS Embed Link (e.g. %s): ", exampleEmbedLink)
-	link, err := input.Prompt(prompt, cmd.In, cmd.Out)
+	link, err := cmd.Input.Prompt(prompt)
 	if err != nil {
 		return err
 	}
@@ -56,12 +55,12 @@ func configureGlobal(cmd *Cmd) error {
 func configureProfiles(cmd *Cmd) error {
 	cont := true
 	for cont {
-		name, err := input.Prompt("Profile name: ", cmd.In, cmd.Out)
+		name, err := cmd.Input.Prompt("Profile name: ")
 		if err != nil {
 			return err
 		}
 
-		roleARN, err := input.Prompt("Role ARN (e.g. arn:aws:iam::123456789001:role/EngineeringRole): ", cmd.In, cmd.Out)
+		roleARN, err := cmd.Input.Prompt("Role ARN (e.g. arn:aws:iam::123456789001:role/EngineeringRole): ")
 		if err != nil {
 			return err
 		}
@@ -81,7 +80,7 @@ func configureProfiles(cmd *Cmd) error {
 			})
 		}
 
-		more, err := input.Prompt("Do you want to configure more profiles? [y/N]: ", cmd.In, cmd.Out)
+		more, err := cmd.Input.Prompt("Do you want to configure more profiles? [y/N]: ")
 		if err != nil {
 			return err
 		}

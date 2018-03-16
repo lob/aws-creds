@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"bytes"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -18,7 +16,6 @@ func TestExecuteRefresh(t *testing.T) {
 		}
 	}))
 	defer srv.Close()
-	var bout bytes.Buffer
 	conf := config.New("")
 	conf.OktaHost = srv.URL
 	conf.Profiles = []*config.Profile{{"staging", "arn:staging"}}
@@ -26,12 +23,10 @@ func TestExecuteRefresh(t *testing.T) {
 		Command: "",
 		Config:  conf,
 		Profile: conf.Profiles[0].Name,
-		Out:     &bout,
+		Input:   &noopInput{},
 	}
 
-	err := executeRefreshWithPrompt(cmd, func(s string, i int, w io.Writer) (string, error) {
-		return "", nil
-	})
+	err := executeRefresh(cmd)
 	if err != nil {
 		t.Fatalf("unexpected error when executing refresh: %s", err)
 	}
