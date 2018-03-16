@@ -61,6 +61,7 @@ func execute(args []string, in io.Reader, out io.Writer) error {
 
 	switch cmd.Command {
 	case configureCommand:
+		// TODO(robin): add debug log if err != nil
 		return executeConfigure(cmd)
 	case refreshCommand:
 		if err != nil {
