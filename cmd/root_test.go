@@ -14,7 +14,7 @@ func TestExecute(t *testing.T) {
 	defer func() {
 		os.Args = origArgs
 	}()
-	os.Args = []string{"cmd", "--help"}
+	os.Args = []string{"cmd", "-h"}
 	Execute()
 }
 

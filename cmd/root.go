@@ -26,9 +26,9 @@ const (
 
 var (
 	defaultConfigFilepath = os.Getenv("HOME") + "/.aws-creds/config"
-	configFilepath        = flag.String("config", defaultConfigFilepath, "config file")
+	configFilepath        = flag.String("c", defaultConfigFilepath, "config file")
 	profile               = flag.String("p", "", "AWS profile to retrieve credentials for (required)")
-	help                  = flag.Bool("help", false, "print this help text")
+	help                  = flag.Bool("h", false, "print this help text")
 )
 
 // Execute runs the CLI application.
