@@ -15,7 +15,7 @@ type Auth struct {
 	} `json:"_embedded"`
 }
 
-// Factor contains inforamation about a specific MFA factor.
+// Factor contains information about a specific MFA factor.
 type Factor struct {
 	FactorType string `json:"factorType"`
 	Profile    struct {
