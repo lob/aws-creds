@@ -35,7 +35,8 @@ func configureGlobal(cmd *Cmd) error {
 		return err
 	}
 
-	link, err := input.Prompt(fmt.Sprintf("Okta AWS Embed Link (e.g. %s): ", exampleEmbedLink), cmd.In, cmd.Out)
+	prompt := fmt.Sprintf("Okta AWS Embed Link (e.g. %s): ", exampleEmbedLink)
+	link, err := input.Prompt(prompt, cmd.In, cmd.Out)
 	if err != nil {
 		return err
 	}
