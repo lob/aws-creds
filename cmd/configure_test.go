@@ -7,25 +7,8 @@ import (
 	"testing"
 
 	"github.com/lob/aws-creds/config"
+	"github.com/lob/aws-creds/test"
 )
-
-type arrayInput struct {
-	responses []string
-	count     int
-}
-
-func newArrayInput(responses []string) *arrayInput {
-	return &arrayInput{responses, 0}
-}
-
-func (i *arrayInput) Prompt(msg string) (string, error) {
-	resp := i.responses[i.count]
-	i.count = i.count + 1
-	return resp, nil
-}
-func (i *arrayInput) PromptPassword(msg string) (string, error) {
-	return msg, nil
-}
 
 func TestExecuteConfigure(t *testing.T) {
 	path := path.Join(os.TempDir(), "aws-creds", "config")
@@ -66,7 +49,7 @@ func TestExecuteConfigure(t *testing.T) {
 }
 
 func fakeCmd(resp []string, conf *config.Config) *Cmd {
-	fakeInput := newArrayInput(resp)
+	fakeInput := test.NewArrayInput(resp)
 	return &Cmd{
 		Command: configureCommand,
 		Config:  conf,

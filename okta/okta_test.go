@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/lob/aws-creds/config"
+	"github.com/lob/aws-creds/test"
 )
 
 func TestLogin(t *testing.T) {
@@ -19,7 +20,8 @@ func TestLogin(t *testing.T) {
 	conf := config.New("")
 	conf.OktaHost = srv.URL
 
-	err := Login(conf, "")
+	i := test.NewNoopInput()
+	err := Login(conf, i, "")
 	if err != nil {
 		t.Fatalf("unexpected error when logging in: %s", err)
 	}
