@@ -1,8 +1,6 @@
 package okta
 
 import (
-	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -20,8 +18,8 @@ func TestAuthLogin(t *testing.T) {
 	defer cleanup(t, path)
 	conf := config.New(path)
 
-	loginSuccessResponse := loadTestFile(t, "login_success_response.json")
-	verifySuccessResponse := loadTestFile(t, "verify_success_response.json")
+	loginSuccessResponse := test.LoadTestFile(t, "login_success_response.json")
+	verifySuccessResponse := test.LoadTestFile(t, "verify_success_response.json")
 	handler := func(w http.ResponseWriter, req *http.Request) {
 		if req.URL.Path == "/api/v1/authn" {
 			_, err := w.Write([]byte(loginSuccessResponse))
@@ -77,15 +75,6 @@ func TestAuthLogin(t *testing.T) {
 			t.Errorf("unexpected error when verifying MFA %s: %s", tc.reason, err)
 		}
 	}
-}
-
-func loadTestFile(t *testing.T, name string) string {
-	path := fmt.Sprintf("testdata/%s", name)
-	contents, err := ioutil.ReadFile(path)
-	if err != nil {
-		t.Fatalf("unexpected error when reading file %s: %s", path, err)
-	}
-	return string(contents)
 }
 
 func testServerAndClient(t *testing.T, handler func(http.ResponseWriter, *http.Request)) (*httptest.Server, *Client) {

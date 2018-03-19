@@ -8,23 +8,24 @@ import (
 )
 
 // Login to Okta with the given username and password.
-func Login(conf *config.Config, p input.Prompter, password string) error {
+func Login(conf *config.Config, p input.Prompter, password string) (*SAMLResponse, error) {
 	c, err := NewClient(conf.OktaHost)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	auth, err := login(c, conf.Username, password)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	fmt.Println("Authentication succeeded!")
 
 	if auth.Status == "MFA_REQUIRED" {
 		if err = auth.verifyMFA(c, conf, p); err != nil {
-			return err
+			return nil, err
 		}
 		fmt.Println("MFA confirmed!")
 	}
-	return nil
+
+	return getSAMLResponse(c, conf.OktaAppPath, auth.SessionToken)
 }
