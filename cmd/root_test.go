@@ -5,19 +5,12 @@ import (
 	"path"
 	"strings"
 	"testing"
+
+	"github.com/lob/aws-creds/test"
 )
 
-type noopInput struct{}
-
-func (i noopInput) Prompt(msg string) (string, error) {
-	return msg, nil
-}
-func (i noopInput) PromptPassword(msg string) (string, error) {
-	return msg, nil
-}
-
 func TestExecute(t *testing.T) {
-	fakeInput := &noopInput{}
+	fakeInput := test.NewNoopInput()
 	origArgs := os.Args
 	defer func() {
 		os.Args = origArgs
@@ -27,7 +20,7 @@ func TestExecute(t *testing.T) {
 }
 
 func TestHelp(t *testing.T) {
-	fakeInput := &noopInput{}
+	fakeInput := test.NewNoopInput()
 	*help = true
 	defer resetFlags()
 
@@ -37,7 +30,7 @@ func TestHelp(t *testing.T) {
 }
 
 func TestConfig(t *testing.T) {
-	fakeInput := &noopInput{}
+	fakeInput := test.NewNoopInput()
 
 	_ = execute([]string{}, fakeInput)
 	if !strings.Contains(*configFilepath, defaultConfigFilepath) {
@@ -57,7 +50,7 @@ func TestConfig(t *testing.T) {
 }
 
 func TestProfile(t *testing.T) {
-	fakeInput := &noopInput{}
+	fakeInput := test.NewNoopInput()
 	*configFilepath = path.Join(os.TempDir(), "aws-creds", "config")
 	defer resetFlags()
 
@@ -76,7 +69,7 @@ func TestProfile(t *testing.T) {
 	}
 }
 func TestUnknownCommand(t *testing.T) {
-	fakeInput := &noopInput{}
+	fakeInput := test.NewNoopInput()
 
 	if err := execute([]string{"foo"}, fakeInput); err == nil {
 		t.Errorf("expected error when executing unknown command")

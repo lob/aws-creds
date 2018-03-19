@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/lob/aws-creds/config"
+	"github.com/lob/aws-creds/test"
 )
 
 func TestExecuteRefresh(t *testing.T) {
@@ -23,7 +24,7 @@ func TestExecuteRefresh(t *testing.T) {
 		Command: "",
 		Config:  conf,
 		Profile: conf.Profiles[0].Name,
-		Input:   &noopInput{},
+		Input:   test.NewNoopInput(),
 	}
 
 	err := executeRefresh(cmd)
