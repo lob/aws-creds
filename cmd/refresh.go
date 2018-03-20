@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/lob/aws-creds/aws"
 	"github.com/lob/aws-creds/config"
 	"github.com/lob/aws-creds/okta"
 )
@@ -29,6 +30,16 @@ func executeRefresh(cmd *Cmd) error {
 		return err
 	}
 
-	_, err = okta.Login(cmd.Config, cmd.Input, password)
-	return err
+	saml, err := okta.Login(cmd.Config, cmd.Input, password)
+	if err != nil {
+		return err
+	}
+
+	creds, err := aws.GetCreds(cmd.STS, saml, profile)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(creds)
+	return nil
 }

@@ -29,12 +29,13 @@ func TestExecuteRefresh(t *testing.T) {
 	conf := config.New("")
 	conf.OktaHost = srv.URL
 	conf.OktaAppPath = appPath
-	conf.Profiles = []*config.Profile{{"staging", "arn:staging"}}
+	conf.Profiles = []*config.Profile{{"staging", "arn:aws:iam::123456789001:role/EngineeringRole"}}
 	cmd := &Cmd{
 		Command: "",
 		Config:  conf,
 		Profile: conf.Profiles[0].Name,
 		Input:   test.NewNoopInput(),
+		STS:     &test.MockSTS{},
 	}
 
 	err := executeRefresh(cmd)
