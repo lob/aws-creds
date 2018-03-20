@@ -9,6 +9,15 @@
 
 [[projects]]
   branch = "master"
+  name = "golang.org/x/net"
+  packages = [
+    "html",
+    "html/atom"
+  ]
+  revision = "92b859f39abd2d91a854c9f9c4621b2f5054a92d"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/sys"
   packages = [
     "unix",
@@ -19,6 +28,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "e1aae4caa13baf710324018116b61e6dfd3a3b97f8c4a4df83be02c20829ee19"
+  inputs-digest = "d29aab5f32b8c1b9a7a055de38ed66d48386a194f67215c4470b93d5a86c3db0"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -29,5 +29,6 @@ func executeRefresh(cmd *Cmd) error {
 		return err
 	}
 
-	return okta.Login(cmd.Config, cmd.Input, password)
+	_, err = okta.Login(cmd.Config, cmd.Input, password)
+	return err
 }
