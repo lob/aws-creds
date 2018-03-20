@@ -50,6 +50,8 @@ func getSAMLResponse(c *Client, appPath, sessionToken string) (*SAMLResponse, er
 	return saml, nil
 }
 
+// getInputNode initially takes in the <html> node of the page and traverses the DOM
+// to find <input name="SAMLResponse"> which contains the base64 encoded SAML response.
 func getInputNode(node *html.Node) *html.Node {
 	if node.Type == html.ElementNode && node.Data == "input" {
 		for _, attr := range node.Attr {
@@ -66,6 +68,7 @@ func getInputNode(node *html.Node) *html.Node {
 	return input
 }
 
+// getValue retrieves the value attribute of the given node.
 func getValue(input *html.Node) string {
 	var val string
 	for _, attr := range input.Attr {
