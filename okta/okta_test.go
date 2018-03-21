@@ -26,12 +26,15 @@ func TestLogin(t *testing.T) {
 		}
 	}))
 	defer srv.Close()
-	conf := config.New("")
+	conf, err := config.New("")
+	if err != nil {
+		t.Fatalf("unexpected error when creating config: %s", err)
+	}
 	conf.OktaHost = srv.URL
 	conf.OktaAppPath = appPath
 
 	i := test.NewNoopInput()
-	_, err := Login(conf, i, "")
+	_, err = Login(conf, i, "")
 	if err != nil {
 		t.Fatalf("unexpected error when logging in: %s", err)
 	}

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
 )
 
@@ -16,6 +17,7 @@ type Config struct {
 	OktaAppPath         string     `json:"okta_app_path,omitempty"`
 	PreferredFactorType string     `json:"preferred_factor_type,omitempty"`
 	Profiles            []*Profile `json:"profiles"`
+	CredentialsFilepath string     `json:"-"`
 	filepath            string
 }
 
@@ -26,6 +28,8 @@ type Profile struct {
 }
 
 const (
+	sharedCrendentialsFileEnv = "AWS_SHARED_CREDENTIALS_FILE"
+
 	directoryPermissions = 0700
 	filePermissions      = 0644
 )
@@ -33,8 +37,17 @@ const (
 var errNotConfigured = errors.New("aws-creds hasn't been configured yet")
 
 // New creates a new Config reference with the given filepath.
-func New(path string) *Config {
-	return &Config{filepath: path}
+func New(fp string) (*Config, error) {
+	cfp := os.Getenv(sharedCrendentialsFileEnv)
+	if cfp == "" {
+		cfp = path.Join(os.Getenv("HOME"), ".aws", "credentials")
+	}
+	dir := filepath.Dir(cfp)
+	err := os.MkdirAll(dir, directoryPermissions)
+	if err != nil {
+		return nil, err
+	}
+	return &Config{CredentialsFilepath: cfp, filepath: fp}, nil
 }
 
 // Load loads data from the config file into the Config struct.

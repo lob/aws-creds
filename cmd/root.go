@@ -51,9 +51,14 @@ func execute(args []string, p input.Prompter) error {
 	}
 
 	sess := session.Must(session.NewSession())
+	conf, err := config.New(*configFilepath)
+	if err != nil {
+		return err
+	}
+
 	cmd := &Cmd{
 		Command: "",
-		Config:  config.New(*configFilepath),
+		Config:  conf,
 		Profile: *profile,
 		Input:   p,
 		STS:     sts.New(sess),
@@ -62,7 +67,7 @@ func execute(args []string, p input.Prompter) error {
 		cmd.Command = args[0]
 	}
 
-	err := cmd.Config.Load()
+	err = cmd.Config.Load()
 
 	switch cmd.Command {
 	case configureCommand:

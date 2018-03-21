@@ -5,7 +5,6 @@ import (
 	"net/http/httptest"
 	"os"
 	"path"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -15,8 +14,11 @@ import (
 
 func TestAuthLogin(t *testing.T) {
 	path := path.Join(os.TempDir(), "aws-creds", "config")
-	defer cleanup(t, path)
-	conf := config.New(path)
+	defer test.Cleanup(t, path)
+	conf, err := config.New(path)
+	if err != nil {
+		t.Fatalf("unexpected error when creating config: %s", err)
+	}
 
 	loginSuccessResponse := test.LoadTestFile(t, "login_success_response.json")
 	verifySuccessResponse := test.LoadTestFile(t, "verify_success_response.json")
@@ -85,11 +87,4 @@ func testServerAndClient(t *testing.T, handler func(http.ResponseWriter, *http.R
 	}
 	c.host = srv.URL
 	return srv, c
-}
-
-func cleanup(t *testing.T, path string) {
-	dir := filepath.Dir(path)
-	if err := os.RemoveAll(dir); err != nil {
-		t.Fatalf("unexpected error when cleaning up: %s", err)
-	}
 }
