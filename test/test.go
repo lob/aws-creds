@@ -7,6 +7,10 @@ import (
 	"path/filepath"
 	"runtime"
 	"testing"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/sts"
+	"github.com/aws/aws-sdk-go/service/sts/stsiface"
 )
 
 // NoopInput implements input.Prompter but doesn't have any side-effects.
@@ -50,6 +54,19 @@ func (i *ArrayInput) PromptPassword(msg string) (string, error) {
 	return msg, nil
 }
 
+// MockSTS is a mock for the AWS STS service.
+type MockSTS struct {
+	stsiface.STSAPI
+	Creds    *sts.Credentials
+	Duration int64
+}
+
+// AssumeRoleWithSAML takes in an AssumeRoleWithSAMLInput and returns AssumeRoleWithSAMLOutput.
+func (m *MockSTS) AssumeRoleWithSAML(in *sts.AssumeRoleWithSAMLInput) (*sts.AssumeRoleWithSAMLOutput, error) {
+	m.Duration = *in.DurationSeconds
+	return &sts.AssumeRoleWithSAMLOutput{Credentials: m.Creds}, nil
+}
+
 // LoadTestFile fetches the contents of the file from the testdata directory as a string.
 func LoadTestFile(t *testing.T, name string) string {
 	_, b, _, _ := runtime.Caller(0)
@@ -60,4 +77,13 @@ func LoadTestFile(t *testing.T, name string) string {
 		t.Fatalf("unexpected error when reading file %s: %s", p, err)
 	}
 	return string(contents)
+}
+
+// NewCredentials creates a new Credentials struct with populated values.
+func NewCredentials() *sts.Credentials {
+	return &sts.Credentials{
+		AccessKeyId:     aws.String("AccessKeyId"),
+		SecretAccessKey: aws.String("SecretAccessKey"),
+		SessionToken:    aws.String("SessionToken"),
+	}
 }

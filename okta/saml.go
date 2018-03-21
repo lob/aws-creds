@@ -11,12 +11,15 @@ import (
 
 // SAMLResponse contains the parsed SAML assertion, along with the raw base64 encoded response.
 type SAMLResponse struct {
-	XMLName    xml.Name `xml:"Response"`
-	Attributes []struct {
-		Name   string   `xml:"Name,attr"`
-		Values []string `xml:"AttributeValue"`
-	} `xml:"Assertion>AttributeStatement>Attribute"`
-	Raw string
+	XMLName    xml.Name    `xml:"Response"`
+	Attributes []Attribute `xml:"Assertion>AttributeStatement>Attribute"`
+	Raw        string
+}
+
+// Attribute contains SAML attributes.
+type Attribute struct {
+	Name   string   `xml:"Name,attr"`
+	Values []string `xml:"AttributeValue"`
 }
 
 func getSAMLResponse(c *Client, appPath, sessionToken string) (*SAMLResponse, error) {

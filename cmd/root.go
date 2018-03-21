@@ -5,6 +5,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/sts"
+	"github.com/aws/aws-sdk-go/service/sts/stsiface"
+
 	"github.com/lob/aws-creds/config"
 	"github.com/lob/aws-creds/input"
 )
@@ -15,6 +19,7 @@ type Cmd struct {
 	Config  *config.Config
 	Profile string
 	Input   input.Prompter
+	STS     stsiface.STSAPI
 }
 
 const (
@@ -45,11 +50,13 @@ func execute(args []string, p input.Prompter) error {
 		return nil
 	}
 
+	sess := session.Must(session.NewSession())
 	cmd := &Cmd{
 		Command: "",
 		Config:  config.New(*configFilepath),
 		Profile: *profile,
 		Input:   p,
+		STS:     sts.New(sess),
 	}
 	if len(args) > 0 {
 		cmd.Command = args[0]
