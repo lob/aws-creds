@@ -28,9 +28,12 @@ const (
 )
 
 var (
+	version = "master"
+
 	defaultConfigFilepath = os.Getenv("HOME") + "/.aws-creds/config"
 	configFilepath        = flag.String("c", defaultConfigFilepath, "config file")
 	profile               = flag.String("p", "", "AWS profile to retrieve credentials for (required)")
+	vrsn                  = flag.Bool("v", false, "print the version")
 	help                  = flag.Bool("h", false, "print this help text")
 )
 
@@ -45,6 +48,11 @@ func Execute(p input.Prompter) {
 }
 
 func execute(args []string, p input.Prompter) error {
+	if *vrsn {
+		fmt.Println(version)
+		return nil
+	}
+
 	if *help {
 		flag.Usage()
 		return nil
