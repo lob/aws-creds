@@ -3,7 +3,6 @@ package cmd
 import (
 	"os"
 	"path"
-	"path/filepath"
 	"testing"
 
 	"github.com/lob/aws-creds/config"
@@ -12,8 +11,11 @@ import (
 
 func TestExecuteConfigure(t *testing.T) {
 	path := path.Join(os.TempDir(), "aws-creds", "config")
-	defer cleanup(t, path)
-	conf := config.New(path)
+	defer test.Cleanup(t, path)
+	conf, err := config.New(path)
+	if err != nil {
+		t.Fatalf("unexpected error when creating config: %s", err)
+	}
 
 	cmd := fakeCmd([]string{"test_user", exampleEmbedLink, "staging", "arn:staging", "n"}, conf)
 	if err := executeConfigure(cmd); err != nil {
@@ -54,12 +56,5 @@ func fakeCmd(resp []string, conf *config.Config) *Cmd {
 		Command: configureCommand,
 		Config:  conf,
 		Input:   fakeInput,
-	}
-}
-
-func cleanup(t *testing.T, path string) {
-	dir := filepath.Dir(path)
-	if err := os.RemoveAll(dir); err != nil {
-		t.Fatalf("unexpected error when cleaning up: %s", err)
 	}
 }

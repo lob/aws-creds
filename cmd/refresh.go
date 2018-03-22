@@ -40,6 +40,5 @@ func executeRefresh(cmd *Cmd) error {
 		return err
 	}
 
-	fmt.Println(creds)
-	return nil
+	return aws.WriteCreds(creds, profile, cmd.Config.CredentialsFilepath)
 }

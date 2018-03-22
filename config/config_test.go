@@ -5,16 +5,50 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 	"testing"
+
+	"github.com/lob/aws-creds/test"
 )
 
 const badPermissions = 0200
 
+func TestNew(t *testing.T) {
+	conf, err := New("")
+	if err != nil {
+		t.Fatalf("unexpected error when creating config: %s", err)
+	}
+	if !strings.Contains(conf.CredentialsFilepath, "") {
+		t.Errorf("expected %s to contain .aws/credentials", conf.CredentialsFilepath)
+	}
+
+	cfp := path.Join(os.TempDir(), "aws-creds", "config")
+	defer test.Cleanup(t, cfp)
+	err = os.Setenv(sharedCrendentialsFileEnv, cfp)
+	if err != nil {
+		t.Fatalf("unexpected error when setting environment variable %s: %s", sharedCrendentialsFileEnv, err)
+	}
+	conf, err = New("")
+	if err != nil {
+		t.Fatalf("unexpected error when creating config: %s", err)
+	}
+	if conf.CredentialsFilepath != cfp {
+		t.Errorf("expected %s to contain .aws/credentials", conf.CredentialsFilepath)
+	}
+	err = os.Unsetenv(sharedCrendentialsFileEnv)
+	if err != nil {
+		t.Fatalf("unexpected error when unsetting environment variable %s: %s", sharedCrendentialsFileEnv, err)
+	}
+}
+
 func TestConfig(t *testing.T) {
 	path := path.Join(os.TempDir(), "aws-creds", "config")
-	defer cleanup(t, path)
+	defer test.Cleanup(t, path)
 
-	conf1 := New(path)
+	conf1, err := New(path)
+	if err != nil {
+		t.Fatalf("unexpected error when creating config: %s", err)
+	}
 	conf1.Username = "test_user"
 	conf1.OktaHost = "https://test.okta.com"
 	conf1.OktaAppPath = "/home/amazon_aws/0oa54k1gk2ukOJ9nGDt7/252"
@@ -26,7 +60,10 @@ func TestConfig(t *testing.T) {
 		t.Fatalf("unexpected error when saving config: %s", err)
 	}
 
-	conf2 := New(path)
+	conf2, err := New(path)
+	if err != nil {
+		t.Fatalf("unexpected error when creating config: %s", err)
+	}
 	if err := conf2.Load(); err != nil {
 		t.Fatalf("unexpected error when loading config: %s", err)
 	}
@@ -52,18 +89,18 @@ func TestConfig(t *testing.T) {
 
 func TestLoadErrors(t *testing.T) {
 	path := path.Join(os.TempDir(), "aws-creds", "config")
-	dir := filepath.Dir(path)
-	defer cleanup(t, path)
+	defer test.Cleanup(t, path)
 
-	conf := New(path)
+	conf, err := New(path)
+	if err != nil {
+		t.Fatalf("unexpected error when creating config: %s", err)
+	}
 
 	if err := conf.Load(); err == nil {
 		t.Errorf("expected error when loading non-existent config")
 	}
 
-	if err := os.MkdirAll(dir, directoryPermissions); err != nil {
-		t.Fatalf("unexpected error when creating a directory: %s", err)
-	}
+	test.PrepTempFile(t, path)
 	if err := ioutil.WriteFile(path, []byte(""), filePermissions); err != nil {
 		t.Fatalf("unexpected error when writing file: %s", err)
 	}
@@ -82,21 +119,17 @@ func TestLoadErrors(t *testing.T) {
 func TestSaveErrors(t *testing.T) {
 	path := path.Join(os.TempDir(), "parent", "aws-creds", "config")
 	dir := filepath.Dir(path)
-	defer cleanup(t, dir)
+	defer test.Cleanup(t, dir)
 
-	conf := New(path)
+	conf, err := New(path)
+	if err != nil {
+		t.Fatalf("unexpected error when creating config: %s", err)
+	}
 
 	if err := os.MkdirAll(filepath.Dir(dir), badPermissions); err != nil {
 		t.Fatalf("unexpected error when making directory: %s", err)
 	}
 	if err := conf.Save(); err == nil {
 		t.Errorf("expected error when saving config with bad permissions")
-	}
-}
-
-func cleanup(t *testing.T, path string) {
-	dir := filepath.Dir(path)
-	if err := os.RemoveAll(dir); err != nil {
-		t.Fatalf("unexpected error when cleaning up: %s", err)
 	}
 }

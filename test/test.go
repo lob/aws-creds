@@ -3,6 +3,7 @@ package test
 
 import (
 	"io/ioutil"
+	"os"
 	"path"
 	"path/filepath"
 	"runtime"
@@ -12,6 +13,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/aws/aws-sdk-go/service/sts/stsiface"
 )
+
+const directoryPermissions = 0700
 
 // NoopInput implements input.Prompter but doesn't have any side-effects.
 type NoopInput struct{}
@@ -65,6 +68,23 @@ type MockSTS struct {
 func (m *MockSTS) AssumeRoleWithSAML(in *sts.AssumeRoleWithSAMLInput) (*sts.AssumeRoleWithSAMLOutput, error) {
 	m.Duration = *in.DurationSeconds
 	return &sts.AssumeRoleWithSAMLOutput{Credentials: m.Creds}, nil
+}
+
+// Cleanup deletes the directory the given file is in. Usually meant to be used in a deferred call.
+func Cleanup(t *testing.T, path string) {
+	dir := filepath.Dir(path)
+	if err := os.RemoveAll(dir); err != nil {
+		t.Fatalf("unexpected error when cleaning up: %s", err)
+	}
+}
+
+// PrepTempFile takes the directory of the given temp file and ensures that it exists.
+func PrepTempFile(t *testing.T, p string) {
+	dir := filepath.Dir(p)
+	err := os.MkdirAll(dir, directoryPermissions)
+	if err != nil {
+		t.Fatalf("unexpected error when making %s: %s", dir, err)
+	}
 }
 
 // LoadTestFile fetches the contents of the file from the testdata directory as a string.

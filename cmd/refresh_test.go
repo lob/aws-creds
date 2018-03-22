@@ -3,6 +3,8 @@ package cmd
 import (
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path"
 	"testing"
 
 	"github.com/lob/aws-creds/config"
@@ -26,19 +28,27 @@ func TestExecuteRefresh(t *testing.T) {
 		}
 	}))
 	defer srv.Close()
-	conf := config.New("")
+	cfp := path.Join(os.TempDir(), ".aws", "credentials")
+	test.PrepTempFile(t, cfp)
+	conf, err := config.New("")
+	if err != nil {
+		t.Fatalf("unexpected error when creating config: %s", err)
+	}
 	conf.OktaHost = srv.URL
 	conf.OktaAppPath = appPath
 	conf.Profiles = []*config.Profile{{"staging", "arn:aws:iam::123456789001:role/EngineeringRole"}}
+	conf.CredentialsFilepath = cfp
+	defer test.Cleanup(t, conf.CredentialsFilepath)
+	creds := test.NewCredentials()
 	cmd := &Cmd{
 		Command: "",
 		Config:  conf,
 		Profile: conf.Profiles[0].Name,
 		Input:   test.NewNoopInput(),
-		STS:     &test.MockSTS{},
+		STS:     &test.MockSTS{Creds: creds},
 	}
 
-	err := executeRefresh(cmd)
+	err = executeRefresh(cmd)
 	if err != nil {
 		t.Fatalf("unexpected error when executing refresh: %s", err)
 	}
