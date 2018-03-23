@@ -54,7 +54,9 @@ func (i *ArrayInput) Prompt(msg string) (string, error) {
 
 // PromptPassword just returns the inputted message.
 func (i *ArrayInput) PromptPassword(msg string) (string, error) {
-	return msg, nil
+	resp := i.responses[i.count]
+	i.count = i.count + 1
+	return resp, nil
 }
 
 // MockSTS is a mock for the AWS STS service.
