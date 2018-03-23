@@ -35,15 +35,36 @@
   version = "v1.13.16"
 
 [[projects]]
+  name = "github.com/danieljoos/wincred"
+  packages = ["."]
+  revision = "412b574fb496839b312a75fba146bd32a89001cf"
+  version = "v1.0.1"
+
+[[projects]]
   name = "github.com/go-ini/ini"
   packages = ["."]
   revision = "6333e38ac20b8949a8dd68baa3650f4dee8f39f0"
   version = "v1.33.0"
 
 [[projects]]
+  name = "github.com/godbus/dbus"
+  packages = ["."]
+  revision = "a389bdde4dd695d414e47b755e95e72b7826432c"
+  version = "v4.1.0"
+
+[[projects]]
   name = "github.com/jmespath/go-jmespath"
   packages = ["."]
   revision = "0b12d6b5"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/zalando/go-keyring"
+  packages = [
+    ".",
+    "secret_service"
+  ]
+  revision = "6d81c293b3fbc8a9b1bcf4bc9c167c2e1d1f52cf"
 
 [[projects]]
   branch = "master"
@@ -72,6 +93,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2f59735ff7f05679ee3a6742c2734b042d47434c55de66b927b659c3cad45396"
+  inputs-digest = "743441cdded56ff381fca072378582ff8bceafeb0b995e46f51d5f08008efa5e"
   solver-name = "gps-cdcl"
   solver-version = 1

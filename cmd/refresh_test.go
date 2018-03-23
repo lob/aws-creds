@@ -9,9 +9,12 @@ import (
 
 	"github.com/lob/aws-creds/config"
 	"github.com/lob/aws-creds/test"
+	"github.com/zalando/go-keyring"
 )
 
 func TestExecuteRefresh(t *testing.T) {
+	keyring.MockInit()
+	password := "password"
 	appPath := "/app/url"
 	appSuccessResponse := test.LoadTestFile(t, "app_success_response.html")
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
@@ -34,6 +37,7 @@ func TestExecuteRefresh(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error when creating config: %s", err)
 	}
+	conf.Username = "user"
 	conf.OktaHost = srv.URL
 	conf.OktaAppPath = appPath
 	conf.Profiles = []*config.Profile{{"staging", "arn:aws:iam::123456789001:role/EngineeringRole"}}
@@ -63,5 +67,32 @@ func TestExecuteRefresh(t *testing.T) {
 	err = executeRefresh(cmd)
 	if err == nil {
 		t.Fatalf("expected error when executing refresh without a profile: %s", err)
+	}
+
+	cmd.Profile = conf.Profiles[0].Name
+	err = keyring.Set(keyringService, conf.Username, password)
+	if err != nil {
+		t.Fatalf("unexpected error when setting password in keyring: %s", err)
+	}
+	err = executeRefresh(cmd)
+	if err != nil {
+		t.Errorf("unexpected error when executing refresh with a saved password: %s", err)
+	}
+	err = keyring.Delete(keyringService, conf.Username)
+	if err != nil {
+		t.Fatalf("unexpected error when deleting password in keyring: %s", err)
+	}
+
+	cmd.Input = test.NewArrayInput([]string{password, "y"})
+	err = executeRefresh(cmd)
+	if err != nil {
+		t.Errorf("unexpected error when executing refresh when trying to save password: %s", err)
+	}
+	p, err := keyring.Get(keyringService, conf.Username)
+	if err != nil {
+		t.Errorf("unexpected error when getting password from keyring: %s", err)
+	}
+	if p != password {
+		t.Errorf("got %s, wanted %s", p, password)
 	}
 }
