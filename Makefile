@@ -15,7 +15,7 @@ build:
 
 lint:
 	@echo "---> Linting... this might take a minute"
-	gometalinter --vendor --tests --deadline=2m $(LFLAGS) $(DIRS)
+	gometalinter --vendor --tests --deadline=3m $(LFLAGS) $(DIRS)
 
 test:
 	@echo "---> Testing"
