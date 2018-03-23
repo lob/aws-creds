@@ -93,8 +93,6 @@ func checkError(resp *http.Response) error {
 		return nil
 	}
 
-	// body, _ := ioutil.ReadAll(resp.Body)
-	// fmt.Println(string(body))
 	errMsg := new(struct {
 		Summary string `json:"errorSummary"`
 	})
