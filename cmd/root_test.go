@@ -21,7 +21,7 @@ func TestExecute(t *testing.T) {
 
 func TestHelp(t *testing.T) {
 	fakeInput := test.NewNoopInput()
-	*help = true
+	*printHelp = true
 	defer resetFlags()
 
 	if err := execute([]string{}, fakeInput); err != nil {
@@ -77,7 +77,7 @@ func TestUnknownCommand(t *testing.T) {
 }
 
 func resetFlags() {
-	*help = false
+	*printHelp = false
 	*configFilepath = defaultConfigFilepath
 	*profile = ""
 }

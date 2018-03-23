@@ -24,6 +24,7 @@ type Factor struct {
 	FactorType string `json:"factorType"`
 	Profile    struct {
 		CredentialID string `json:"credentialId"`
+		PhoneNumber  string `json:"phoneNumber"`
 	} `json:"profile"`
 	Links struct {
 		Verify struct {
@@ -84,6 +85,8 @@ func (auth *Auth) verifyMFA(c *Client, conf *config.Config, p input.Prompter) er
 	switch factor.FactorType {
 	case totpFactorType:
 		return verifyTOTP(c, factor, auth, p)
+	case smsFactorType:
+		return verifySMS(c, factor, auth, p)
 	default:
 		return fmt.Errorf("%s factor not implemented", factor.FactorType)
 	}

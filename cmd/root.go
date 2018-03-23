@@ -28,10 +28,13 @@ const (
 )
 
 var (
+	version = "development build"
+
 	defaultConfigFilepath = os.Getenv("HOME") + "/.aws-creds/config"
 	configFilepath        = flag.String("c", defaultConfigFilepath, "config file")
 	profile               = flag.String("p", "", "AWS profile to retrieve credentials for (required)")
-	help                  = flag.Bool("h", false, "print this help text")
+	printVersion          = flag.Bool("v", false, "print the version")
+	printHelp             = flag.Bool("h", false, "print this help text")
 )
 
 // Execute runs the CLI application.
@@ -45,7 +48,12 @@ func Execute(p input.Prompter) {
 }
 
 func execute(args []string, p input.Prompter) error {
-	if *help {
+	if *printVersion {
+		fmt.Printf("aws-creds %s\n", version)
+		return nil
+	}
+
+	if *printHelp {
 		flag.Usage()
 		return nil
 	}

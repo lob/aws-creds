@@ -3,6 +3,7 @@ package okta
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/url"
 	"strconv"
 
@@ -11,6 +12,7 @@ import (
 
 const (
 	totpFactorType = "token:software:totp"
+	smsFactorType  = "sms"
 )
 
 func promptForFactor(factors []*Factor, p input.Prompter) (int, error) {
@@ -20,6 +22,8 @@ func promptForFactor(factors []*Factor, p input.Prompter) (int, error) {
 		switch f.FactorType {
 		case totpFactorType:
 			id = f.Profile.CredentialID
+		case smsFactorType:
+			id = f.Profile.PhoneNumber
 		default:
 			id = "CURRENTLY UNSUPPORTED"
 		}
@@ -46,18 +50,46 @@ func promptForFactor(factors []*Factor, p input.Prompter) (int, error) {
 }
 
 func verifyTOTP(c *Client, f *Factor, a *Auth, p input.Prompter) error {
-	totp, err := p.Prompt("Enter TOTP: ")
-	if err != nil {
-		return err
-	}
-	payload := []byte(fmt.Sprintf(`{"stateToken":"%s","answer":"%s"}`, a.StateToken, totp))
-	u, err := url.Parse(f.Links.Verify.Href)
-	if err != nil {
-		return err
-	}
-	resp, err := c.Post(u.Path, payload)
-	if err != nil {
-		return err
+	var resp io.Reader
+	for {
+		totp, err := p.Prompt("Enter TOTP: ")
+		if err != nil {
+			return err
+		}
+		resp, err = verifyAnswer(totp, a.StateToken, c, f)
+		if err == nil {
+			break
+		}
+		fmt.Println(err)
 	}
 	return json.NewDecoder(resp).Decode(a)
+}
+
+func verifySMS(c *Client, f *Factor, a *Auth, p input.Prompter) error {
+	_, err := verifyAnswer("", a.StateToken, c, f)
+	if err != nil {
+		return err
+	}
+	var resp io.Reader
+	for {
+		code, err := p.Prompt("Enter SMS Code: ")
+		if err != nil {
+			return err
+		}
+		resp, err = verifyAnswer(code, a.StateToken, c, f)
+		if err == nil {
+			break
+		}
+		fmt.Println(err)
+	}
+	return json.NewDecoder(resp).Decode(a)
+}
+
+func verifyAnswer(answer string, stateToken string, c *Client, f *Factor) (io.Reader, error) {
+	payload := []byte(fmt.Sprintf(`{"stateToken":"%s","answer":"%s"}`, stateToken, answer))
+	u, err := url.Parse(f.Links.Verify.Href)
+	if err != nil {
+		return nil, err
+	}
+	return c.Post(u.Path, payload)
 }

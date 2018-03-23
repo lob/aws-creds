@@ -52,6 +52,23 @@
             }
           }
         }
+      },
+      {
+        "id": "Sl7sId0izK6GSyD8tQKJ",
+        "factorType": "unsupported",
+        "provider": "OKTA",
+        "vendorName": "OKTA",
+        "profile": {},
+        "_links": {
+          "verify": {
+            "href": "https://test.okta.com/api/v1/authn/factors/Sl7sId0izK6GSyD8tQKJ/verify",
+            "hints": {
+              "allow": [
+                "POST"
+              ]
+            }
+          }
+        }
       }
     ],
     "policy": {
