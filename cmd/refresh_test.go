@@ -70,7 +70,7 @@ func TestExecuteRefresh(t *testing.T) {
 	}
 
 	cmd.Profile = conf.Profiles[0].Name
-	err = keyring.Set(keyringService, conf.Username, password)
+	err = keyring.Set(keyringPasswordService, conf.Username, password)
 	if err != nil {
 		t.Fatalf("unexpected error when setting password in keyring: %s", err)
 	}
@@ -78,7 +78,7 @@ func TestExecuteRefresh(t *testing.T) {
 	if err != nil {
 		t.Errorf("unexpected error when executing refresh with a saved password: %s", err)
 	}
-	err = keyring.Delete(keyringService, conf.Username)
+	err = keyring.Delete(keyringPasswordService, conf.Username)
 	if err != nil {
 		t.Fatalf("unexpected error when deleting password in keyring: %s", err)
 	}
@@ -88,7 +88,7 @@ func TestExecuteRefresh(t *testing.T) {
 	if err != nil {
 		t.Errorf("unexpected error when executing refresh when trying to save password: %s", err)
 	}
-	p, err := keyring.Get(keyringService, conf.Username)
+	p, err := keyring.Get(keyringPasswordService, conf.Username)
 	if err != nil {
 		t.Errorf("unexpected error when getting password from keyring: %s", err)
 	}

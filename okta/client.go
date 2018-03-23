@@ -8,25 +8,42 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
+	"net/url"
 	"strings"
+
+	"golang.org/x/net/publicsuffix"
 )
 
 // Client contains the necessary information needed to communicate with the Okta API.
 type Client struct {
-	host string
-	http *http.Client
+	Host *url.URL
+	HTTP *http.Client
 }
 
 // NewClient returns a newly configured Client.
-func NewClient(host string) (*Client, error) {
-	jar, err := cookiejar.New(nil)
+func NewClient(host, sessionCookie string) (*Client, error) {
+	u, err := url.Parse(host)
 	if err != nil {
 		return nil, err
 	}
 
+	jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
+	if err != nil {
+		return nil, err
+	}
+
+	if sessionCookie != "" {
+		jar.SetCookies(u, []*http.Cookie{
+			{
+				Name:  "sid",
+				Value: sessionCookie,
+			},
+		})
+	}
+
 	return &Client{
-		host: host,
-		http: &http.Client{
+		Host: u,
+		HTTP: &http.Client{
 			Jar: jar,
 		},
 	}, nil
@@ -34,8 +51,8 @@ func NewClient(host string) (*Client, error) {
 
 // Post makes an HTTP POST request and returns the response as a string.
 func (c *Client) Post(path string, payload []byte) (reader io.Reader, err error) {
-	url := c.host + path
-	resp, err := c.http.Post(url, "application/json", bytes.NewBuffer(payload))
+	u := c.Host.String() + path
+	resp, err := c.HTTP.Post(u, "application/json", bytes.NewBuffer(payload))
 	if err != nil {
 		return
 	}
@@ -62,8 +79,8 @@ func (c *Client) Post(path string, payload []byte) (reader io.Reader, err error)
 
 // Get makes an HTTP GET request and returns the response as a string.
 func (c *Client) Get(path string) (reader io.Reader, err error) {
-	url := c.host + path
-	resp, err := c.http.Get(url)
+	u := c.Host.String() + path
+	resp, err := c.HTTP.Get(u)
 	if err != nil {
 		return
 	}
@@ -89,6 +106,7 @@ func (c *Client) Get(path string) (reader io.Reader, err error) {
 }
 
 func checkError(resp *http.Response) error {
+	fmt.Println(resp.Header)
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		return nil
 	}
