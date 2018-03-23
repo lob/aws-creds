@@ -60,8 +60,13 @@ func getPassword(cmd *Cmd) (string, error) {
 		return password, nil
 	}
 	fmt.Println("Password not found in keyring.")
+
+	return promptPassword(cmd)
+}
+
+func promptPassword(cmd *Cmd) (string, error) {
 	msg := fmt.Sprintf("Enter password for %s: ", cmd.Config.Username)
-	password, err = cmd.Input.PromptPassword(msg)
+	password, err := cmd.Input.PromptPassword(msg)
 	if err != nil {
 		return "", err
 	}
