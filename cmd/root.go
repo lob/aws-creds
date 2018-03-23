@@ -28,7 +28,7 @@ const (
 )
 
 var (
-	version = "master"
+	version = "development build"
 
 	defaultConfigFilepath = os.Getenv("HOME") + "/.aws-creds/config"
 	configFilepath        = flag.String("c", defaultConfigFilepath, "config file")
@@ -49,7 +49,7 @@ func Execute(p input.Prompter) {
 
 func execute(args []string, p input.Prompter) error {
 	if *printVersion {
-		fmt.Println(version)
+		fmt.Printf("aws-creds %s\n", version)
 		return nil
 	}
 
