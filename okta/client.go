@@ -20,7 +20,8 @@ type Client struct {
 	http *http.Client
 }
 
-// NewClient returns a newly configured Client.
+// NewClient returns a newly configured Client with the given host and possible Okta
+// session cookie. If the session cookie is empty, there was no session previously saved.
 func NewClient(host, sessionCookie string) (*Client, error) {
 	u, err := url.Parse(host)
 	if err != nil {
