@@ -39,7 +39,7 @@ func Login(conf *config.Config, p input.Prompter, sessionCookie, password string
 		return nil, "", err
 	}
 
-	cookies := c.HTTP.Jar.Cookies(c.Host)
+	cookies := c.http.Jar.Cookies(c.url)
 	for _, cookie := range cookies {
 		if cookie.Name == "sid" {
 			sessionCookie = cookie.Value

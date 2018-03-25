@@ -124,6 +124,6 @@ func testServerAndClient(t *testing.T, handler func(http.ResponseWriter, *http.R
 	if err != nil {
 		t.Fatalf("unexpected error when parsing %s: %s", srv.URL, err)
 	}
-	c.Host = u
+	c.url = u
 	return srv, c
 }

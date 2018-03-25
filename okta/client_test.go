@@ -16,14 +16,14 @@ func TestClient(t *testing.T) {
 		t.Fatalf("unexpected error when creating client: %s", err)
 	}
 
-	if c.Host.String() != host {
-		t.Errorf("got %s, wanted %s", c.Host.String(), host)
+	if c.url.String() != host {
+		t.Errorf("got %s, wanted %s", c.url.String(), host)
 	}
-	if c.HTTP.Jar == nil {
+	if c.http.Jar == nil {
 		t.Fatalf("expected HTTP client to have a cookie jar")
 	}
 	var cookie string
-	cookies := c.HTTP.Jar.Cookies(c.Host)
+	cookies := c.http.Jar.Cookies(c.url)
 	for _, c := range cookies {
 		if c.Name == "sid" {
 			cookie = c.Value
@@ -33,7 +33,7 @@ func TestClient(t *testing.T) {
 		t.Errorf("got %s, wanted %s", cookie, sid)
 	}
 
-	if c.HTTP.Jar == nil {
+	if c.http.Jar == nil {
 		t.Errorf("expected HTTP client to have a cookie jar")
 	}
 
@@ -58,7 +58,7 @@ func TestClient(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error when parsing %s: %s", srv.URL, err)
 	}
-	c.Host = u
+	c.url = u
 
 	reader, err := c.Post("/test", []byte(""))
 	if err != nil {

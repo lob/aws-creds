@@ -16,8 +16,8 @@ import (
 
 // Client contains the necessary information needed to communicate with the Okta API.
 type Client struct {
-	Host *url.URL
-	HTTP *http.Client
+	url  *url.URL
+	http *http.Client
 }
 
 // NewClient returns a newly configured Client.
@@ -42,8 +42,8 @@ func NewClient(host, sessionCookie string) (*Client, error) {
 	}
 
 	return &Client{
-		Host: u,
-		HTTP: &http.Client{
+		url: u,
+		http: &http.Client{
 			Jar: jar,
 		},
 	}, nil
@@ -51,8 +51,8 @@ func NewClient(host, sessionCookie string) (*Client, error) {
 
 // Post makes an HTTP POST request and returns the response as a string.
 func (c *Client) Post(path string, payload []byte) (reader io.Reader, err error) {
-	u := c.Host.String() + path
-	resp, err := c.HTTP.Post(u, "application/json", bytes.NewBuffer(payload))
+	u := c.url.String() + path
+	resp, err := c.http.Post(u, "application/json", bytes.NewBuffer(payload))
 	if err != nil {
 		return
 	}
@@ -79,8 +79,8 @@ func (c *Client) Post(path string, payload []byte) (reader io.Reader, err error)
 
 // Get makes an HTTP GET request and returns the response as a string.
 func (c *Client) Get(path string) (reader io.Reader, err error) {
-	u := c.Host.String() + path
-	resp, err := c.HTTP.Get(u)
+	u := c.url.String() + path
+	resp, err := c.http.Get(u)
 	if err != nil {
 		return
 	}
