@@ -34,12 +34,13 @@ func NewClient(host, sessionCookie string) (*Client, error) {
 	}
 
 	if sessionCookie != "" {
-		jar.SetCookies(u, []*http.Cookie{
+		cookies := []*http.Cookie{
 			{
 				Name:  "sid",
 				Value: sessionCookie,
 			},
-		})
+		}
+		jar.SetCookies(u, cookies)
 	}
 
 	return &Client{
