@@ -107,7 +107,6 @@ func (c *Client) Get(path string) (reader io.Reader, err error) {
 }
 
 func checkError(resp *http.Response) error {
-	fmt.Println(resp.Header)
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		return nil
 	}
