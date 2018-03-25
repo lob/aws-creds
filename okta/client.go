@@ -8,24 +8,43 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
+	"net/url"
 	"strings"
+
+	"golang.org/x/net/publicsuffix"
 )
 
 // Client contains the necessary information needed to communicate with the Okta API.
 type Client struct {
-	host string
+	url  *url.URL
 	http *http.Client
 }
 
-// NewClient returns a newly configured Client.
-func NewClient(host string) (*Client, error) {
-	jar, err := cookiejar.New(nil)
+// NewClient returns a newly configured Client with the given host and possible Okta
+// session cookie. If the session cookie is empty, there was no session previously saved.
+func NewClient(host, sessionCookie string) (*Client, error) {
+	u, err := url.Parse(host)
 	if err != nil {
 		return nil, err
 	}
 
+	jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
+	if err != nil {
+		return nil, err
+	}
+
+	if sessionCookie != "" {
+		cookies := []*http.Cookie{
+			{
+				Name:  "sid",
+				Value: sessionCookie,
+			},
+		}
+		jar.SetCookies(u, cookies)
+	}
+
 	return &Client{
-		host: host,
+		url: u,
 		http: &http.Client{
 			Jar: jar,
 		},
@@ -34,8 +53,8 @@ func NewClient(host string) (*Client, error) {
 
 // Post makes an HTTP POST request and returns the response as a string.
 func (c *Client) Post(path string, payload []byte) (reader io.Reader, err error) {
-	url := c.host + path
-	resp, err := c.http.Post(url, "application/json", bytes.NewBuffer(payload))
+	u := c.url.String() + path
+	resp, err := c.http.Post(u, "application/json", bytes.NewBuffer(payload))
 	if err != nil {
 		return
 	}
@@ -62,8 +81,8 @@ func (c *Client) Post(path string, payload []byte) (reader io.Reader, err error)
 
 // Get makes an HTTP GET request and returns the response as a string.
 func (c *Client) Get(path string) (reader io.Reader, err error) {
-	url := c.host + path
-	resp, err := c.http.Get(url)
+	u := c.url.String() + path
+	resp, err := c.http.Get(u)
 	if err != nil {
 		return
 	}

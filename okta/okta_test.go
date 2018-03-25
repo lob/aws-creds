@@ -34,7 +34,7 @@ func TestLogin(t *testing.T) {
 	conf.OktaAppPath = appPath
 
 	i := test.NewNoopInput()
-	_, err = Login(conf, i, "")
+	_, _, err = Login(conf, i, "", "")
 	if err != nil {
 		t.Fatalf("unexpected error when logging in: %s", err)
 	}

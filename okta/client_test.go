@@ -4,19 +4,35 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 )
 
 func TestClient(t *testing.T) {
 	host := "https://test.okta.com"
-	c, err := NewClient(host)
+	sid := "test_sid"
+	c, err := NewClient(host, sid)
 	if err != nil {
 		t.Fatalf("unexpected error when creating client: %s", err)
 	}
 
-	if c.host != host {
-		t.Errorf("got %s, wanted %s", c.host, host)
+	if c.url.String() != host {
+		t.Errorf("got %s, wanted %s", c.url.String(), host)
 	}
+	if c.http.Jar == nil {
+		t.Fatalf("expected HTTP client to have a cookie jar")
+	}
+	var cookie string
+	cookies := c.http.Jar.Cookies(c.url)
+	for _, c := range cookies {
+		if c.Name == "sid" {
+			cookie = c.Value
+		}
+	}
+	if cookie != sid {
+		t.Errorf("got %s, wanted %s", cookie, sid)
+	}
+
 	if c.http.Jar == nil {
 		t.Errorf("expected HTTP client to have a cookie jar")
 	}
@@ -38,7 +54,11 @@ func TestClient(t *testing.T) {
 		}
 	}))
 	defer srv.Close()
-	c.host = srv.URL
+	u, err := url.Parse(srv.URL)
+	if err != nil {
+		t.Fatalf("unexpected error when parsing %s: %s", srv.URL, err)
+	}
+	c.url = u
 
 	reader, err := c.Post("/test", []byte(""))
 	if err != nil {

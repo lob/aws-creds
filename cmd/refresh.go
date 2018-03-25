@@ -12,7 +12,8 @@ import (
 )
 
 const (
-	keyringService = "aws-creds"
+	keyringPasswordService = "aws-creds Password" // nolint: gas
+	keyringSessionService  = "aws-creds Session Cookie"
 )
 
 func executeRefresh(cmd *Cmd) error {
@@ -30,12 +31,26 @@ func executeRefresh(cmd *Cmd) error {
 		return fmt.Errorf("profile %s not configured", cmd.Profile)
 	}
 
-	password, err := getPassword(cmd)
+	var password string
+	var sessionCookie string
+
+	sessionCookie, err := getSessionCookie(cmd)
 	if err != nil {
 		return err
 	}
 
-	saml, err := okta.Login(cmd.Config, cmd.Input, password)
+	if sessionCookie == "" {
+		password, err = getPassword(cmd)
+		if err != nil {
+			return err
+		}
+	}
+
+	saml, sessionCookie, err := okta.Login(cmd.Config, cmd.Input, sessionCookie, password)
+	if err != nil {
+		return err
+	}
+	err = keyring.Set(keyringSessionService, cmd.Config.Username, sessionCookie)
 	if err != nil {
 		return err
 	}
@@ -48,10 +63,21 @@ func executeRefresh(cmd *Cmd) error {
 	return aws.WriteCreds(creds, profile, cmd.Config.CredentialsFilepath)
 }
 
+func getSessionCookie(cmd *Cmd) (string, error) {
+	cookie, err := keyring.Get(keyringSessionService, cmd.Config.Username)
+	if err != nil && err != keyring.ErrNotFound {
+		return "", err
+	}
+	if err == nil {
+		return cookie, nil
+	}
+	return "", nil
+}
+
 func getPassword(cmd *Cmd) (string, error) {
 	var password string
 
-	password, err := keyring.Get(keyringService, cmd.Config.Username)
+	password, err := keyring.Get(keyringPasswordService, cmd.Config.Username)
 	if err != nil && err != keyring.ErrNotFound {
 		return "", err
 	}
@@ -75,7 +101,7 @@ func promptPassword(cmd *Cmd) (string, error) {
 		return "", err
 	}
 	if strings.ToLower(save)[0] == 'y' {
-		err := keyring.Set(keyringService, cmd.Config.Username, password)
+		err := keyring.Set(keyringPasswordService, cmd.Config.Username, password)
 		if err != nil {
 			return "", err
 		}

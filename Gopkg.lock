@@ -77,7 +77,9 @@
   name = "golang.org/x/net"
   packages = [
     "html",
-    "html/atom"
+    "html/atom",
+    "idna",
+    "publicsuffix"
   ]
   revision = "92b859f39abd2d91a854c9f9c4621b2f5054a92d"
 
@@ -90,9 +92,30 @@
   ]
   revision = "89ac7f292d17a339edab4de8efcba5d8672ff661"
 
+[[projects]]
+  name = "golang.org/x/text"
+  packages = [
+    "collate",
+    "collate/build",
+    "internal/colltab",
+    "internal/gen",
+    "internal/tag",
+    "internal/triegen",
+    "internal/ucd",
+    "language",
+    "secure/bidirule",
+    "transform",
+    "unicode/bidi",
+    "unicode/cldr",
+    "unicode/norm",
+    "unicode/rangetable"
+  ]
+  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
+  version = "v0.3.0"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "743441cdded56ff381fca072378582ff8bceafeb0b995e46f51d5f08008efa5e"
+  inputs-digest = "8eb38c9824cd9a10c89499a1a1b57f3516492734cfeb4e7a0ef896f543cf8795"
   solver-name = "gps-cdcl"
   solver-version = 1

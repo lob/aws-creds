@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"path"
 	"strings"
@@ -115,10 +116,14 @@ func authServerHandler(t *testing.T) http.HandlerFunc {
 
 func testServerAndClient(t *testing.T, handler func(http.ResponseWriter, *http.Request)) (*httptest.Server, *Client) {
 	srv := httptest.NewServer(http.HandlerFunc(handler))
-	c, err := NewClient("test")
+	c, err := NewClient("http://test.com", "")
 	if err != nil {
 		t.Fatalf("unexpected error when creating client: %s", err)
 	}
-	c.host = srv.URL
+	u, err := url.Parse(srv.URL)
+	if err != nil {
+		t.Fatalf("unexpected error when parsing %s: %s", srv.URL, err)
+	}
+	c.url = u
 	return srv, c
 }
