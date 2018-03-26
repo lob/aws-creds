@@ -17,7 +17,8 @@ func Login(conf *config.Config, p input.Prompter, sessionCookie, password string
 	if sessionCookie != "" {
 		saml, err := getSAMLResponse(c, conf.OktaAppPath, "")
 		if err == nil {
-			return saml, "", nil
+			fmt.Println("Reused Okta session to authenticate.")
+			return saml, sessionCookie, nil
 		}
 	}
 
