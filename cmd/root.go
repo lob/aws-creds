@@ -31,7 +31,7 @@ var (
 	version = "development build"
 
 	defaultConfigFilepath = os.Getenv("HOME") + "/.aws-creds/config"
-	configFilepath        = flag.String("c", defaultConfigFilepath, "config file")
+	configFilepath        = flag.String("c", defaultConfigFilepath, fmt.Sprintf("config file (default: %q)", defaultConfigFilepath))
 	profile               = flag.String("p", "", "AWS profile to retrieve credentials for (required)")
 	printVersion          = flag.Bool("v", false, "print the version")
 	printHelp             = flag.Bool("h", false, "print this help text")
@@ -54,7 +54,7 @@ func execute(args []string, p input.Prompter) error {
 	}
 
 	if *printHelp {
-		flag.Usage()
+		printUsage()
 		return nil
 	}
 
@@ -89,4 +89,23 @@ func execute(args []string, p input.Prompter) error {
 	default:
 		return fmt.Errorf("unknown command: %s", cmd.Command)
 	}
+}
+
+func printUsage() {
+	usage := `aws-creds %s
+CLI tool to authenticate with Okta as the IdP to fetch AWS credentials
+
+Usage:
+  aws-creds [options] [commands]
+
+Available Commands:
+  configure	configure aws-creds with Okta configs and AWS profiles
+
+Flags:
+`
+
+	flag.VisitAll(func(f *flag.Flag) {
+		usage += fmt.Sprintf("  -%s\t%s\n", f.Name, f.Usage)
+	})
+	fmt.Printf(usage, version)
 }
