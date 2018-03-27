@@ -5,6 +5,8 @@ BFLAGS ?=
 LFLAGS ?=
 TFLAGS ?=
 
+VERSION ?=
+
 COVERAGE_PROFILE ?= coverage.out
 
 default: build
@@ -28,6 +30,12 @@ enforce:
 html:
 	@echo "---> Generating HTML coverage report"
 	go tool cover -html $(COVERAGE_PROFILE)
+
+release:
+	@echo "---> Creating tagged release"
+	git tag $(VERSION)
+	git push origin
+	git push origin --tags
 
 clean:
 	@echo "---> Cleaning"
