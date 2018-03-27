@@ -1,10 +1,12 @@
 package cmd
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path"
+	"strings"
 	"testing"
 
 	"github.com/lob/aws-creds/config"
@@ -12,20 +14,32 @@ import (
 	"github.com/zalando/go-keyring"
 )
 
+type authPayload struct {
+	Username string `json:"username"`
+}
+
 func TestExecuteRefresh(t *testing.T) {
 	keyring.MockInit()
+	mfaUser := "mfa"
 	password := "password"
 	appPath := "/app/url"
 	appSuccessResponse := test.LoadTestFile(t, "app_success_response.html")
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		resp := []byte("{}")
 		if req.URL.Path == appPath {
-			_, err := w.Write([]byte(appSuccessResponse))
-			if err != nil {
-				t.Fatalf("unexpected error when writing response: %s", err)
-			}
-			return
+			resp = []byte(appSuccessResponse)
 		}
-		_, err := w.Write([]byte("{}"))
+		if req.URL.Path == "/api/v1/authn" {
+			body := &authPayload{}
+			err := json.NewDecoder(req.Body).Decode(body)
+			if err != nil {
+				t.Fatalf("unexpected error when decoding body: %s", err)
+			}
+			if body.Username == mfaUser {
+				resp = []byte(`{"status":"MFA_REQUIRED"}`)
+			}
+		}
+		_, err := w.Write(resp)
 		if err != nil {
 			t.Fatalf("unexpected error when writing response: %s", err)
 		}
@@ -78,11 +92,23 @@ func TestExecuteRefresh(t *testing.T) {
 	if err != nil {
 		t.Errorf("unexpected error when executing refresh with a saved password: %s", err)
 	}
-	err = keyring.Delete(keyringPasswordService, conf.Username)
+	conf.Username = mfaUser
+	conf.PreferredFactorType = "invalid"
+	err = keyring.Set(keyringPasswordService, conf.Username, password)
 	if err != nil {
-		t.Fatalf("unexpected error when deleting password in keyring: %s", err)
+		t.Fatalf("unexpected error when setting password in keyring: %s", err)
+	}
+	err = executeRefresh(cmd)
+	if err != nil && !strings.Contains(err.Error(), "MFA") {
+		t.Errorf("unexpected error when executing refresh to delete saved password on err: %s", err)
+	}
+	_, err = keyring.Get(keyringPasswordService, conf.Username)
+	if err != keyring.ErrNotFound {
+		t.Fatalf("expected not found error when getting deleted password: %s", err)
 	}
 
+	conf.Username = "user"
+	conf.PreferredFactorType = ""
 	cmd.Input = test.NewArrayInput([]string{password, "y"})
 	err = executeRefresh(cmd)
 	if err != nil {
