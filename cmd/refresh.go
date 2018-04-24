@@ -121,7 +121,7 @@ func promptSavePassword(cmd *Cmd, password string) error {
 	if err != nil {
 		return err
 	}
-	if strings.ToLower(save)[0] == 'y' {
+	if strings.HasPrefix(strings.ToLower(save), "y") {
 		err := keyring.Set(keyringPasswordService, cmd.Config.Username, password)
 		if err != nil {
 			return err

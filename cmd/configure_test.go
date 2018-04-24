@@ -28,6 +28,18 @@ func TestExecuteConfigure(t *testing.T) {
 		t.Errorf("got len(conf.Profiles) = %d, wanted %d", len(conf.Profiles), 1)
 	}
 
+	// test default response (empty implying no additional configuration needed)
+	cmd = fakeCmd([]string{"test_user", exampleEmbedLink, "staging", "arn:staging", ""}, conf)
+	if err := executeConfigure(cmd); err != nil {
+		t.Errorf("unexpected error when configuring with 1 profile: %s", err)
+	}
+	if conf.Username != "test_user" {
+		t.Errorf("got %s, wanted %s", conf.Username, "test_user")
+	}
+	if len(conf.Profiles) != 1 {
+		t.Errorf("got len(conf.Profiles) = %d, wanted %d", len(conf.Profiles), 1)
+	}
+
 	cmd = fakeCmd([]string{"test_user", exampleEmbedLink, "staging", "arn:staging", "y", "production", "arn:production", "n"}, conf)
 	if err := executeConfigure(cmd); err != nil {
 		t.Errorf("unexpected error when configuring with 2 profiles: %s", err)
