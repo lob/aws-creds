@@ -86,7 +86,7 @@ func configureProfiles(cmd *Cmd) error {
 		}
 		fmt.Print("\n")
 
-		cont = strings.ToLower(more)[0] == 'y'
+		cont = strings.HasPrefix(strings.ToLower(more), "y")
 	}
 	return nil
 }

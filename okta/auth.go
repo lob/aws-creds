@@ -71,7 +71,7 @@ func (auth *Auth) verifyMFA(c *Client, conf *config.Config, p input.Prompter) er
 		if err != nil {
 			return err
 		}
-		if strings.ToLower(save)[0] == 'y' {
+		if strings.HasPrefix(strings.ToLower(save), "y") {
 			conf.PreferredFactorType = factor.FactorType
 			err = conf.Save()
 			if err != nil {
