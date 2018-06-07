@@ -47,7 +47,19 @@ func executeRefresh(cmd *Cmd) error {
 		}
 	}
 
-	saml, sessionCookie, err := okta.Login(cmd.Config, cmd.Input, sessionCookie, password)
+	saml, newSessionCookie, err := okta.Login(cmd.Config, cmd.Input, sessionCookie, password)
+	if sessionCookie != "" && err != nil {
+		if deleteErr := keyring.Delete(keyringSessionService, cmd.Config.Username); deleteErr != nil {
+			return deleteErr
+		}
+
+		password, prompted, err = getPassword(cmd)
+		if err != nil {
+			return err
+		}
+
+		saml, newSessionCookie, err = okta.Login(cmd.Config, cmd.Input, "", password)
+	}
 	if err != nil {
 		deleteErr := keyring.Delete(keyringPasswordService, cmd.Config.Username)
 		switch deleteErr {
@@ -68,7 +80,7 @@ func executeRefresh(cmd *Cmd) error {
 			return err
 		}
 	}
-	err = keyring.Set(keyringSessionService, cmd.Config.Username, sessionCookie)
+	err = keyring.Set(keyringSessionService, cmd.Config.Username, newSessionCookie)
 	if err != nil {
 		return err
 	}
