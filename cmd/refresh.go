@@ -53,6 +53,8 @@ func executeRefresh(cmd *Cmd) error {
 			return deleteErr
 		}
 
+		fmt.Println("Invalid session token deleted from system keyring.")
+
 		password, prompted, err = getPassword(cmd)
 		if err != nil {
 			return err
