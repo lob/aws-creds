@@ -11,7 +11,7 @@ import (
 
 const (
 	accessKeyID     = "aws_access_key_id"
-	secretAccessKey = "aws_secret_access_key" // nolint: gas
+	secretAccessKey = "aws_secret_access_key" // nolint: gosec
 	sessionToken    = "aws_session_token"
 )
 
