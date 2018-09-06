@@ -18,7 +18,7 @@ const (
 
 func executeRefresh(cmd *Cmd) error {
 	if cmd.Profile == "" {
-		return errors.New("profile is required")
+		return errors.New("you must provide a profile with '-p', e.g. 'aws-creds -p production'")
 	}
 	var profile *config.Profile
 	for _, p := range cmd.Config.Profiles {

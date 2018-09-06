@@ -2,6 +2,7 @@
 
 
 [[projects]]
+  digest = "1:84a2fda1ab2d56724f9a370bfaf10ee6520b41ff1ad162f473649fb17308f1af"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -29,70 +30,88 @@
     "private/protocol/rest",
     "private/protocol/xml/xmlutil",
     "service/sts",
-    "service/sts/stsiface"
+    "service/sts/stsiface",
   ]
+  pruneopts = ""
   revision = "f0872da8a448f8cb10f4f0c95c2100e4f7356448"
   version = "v1.13.16"
 
 [[projects]]
+  digest = "1:a0a137c32515be7033c09be792a79b20d8c69e1891bf3f797e8ba83ecbb4b1fe"
   name = "github.com/danieljoos/wincred"
   packages = ["."]
+  pruneopts = ""
   revision = "412b574fb496839b312a75fba146bd32a89001cf"
   version = "v1.0.1"
 
 [[projects]]
+  digest = "1:6495f8b9362cd905f70b147a8b74a83e9afc5b83fe7530d4f7bef468b7412107"
   name = "github.com/go-ini/ini"
   packages = ["."]
+  pruneopts = ""
   revision = "6333e38ac20b8949a8dd68baa3650f4dee8f39f0"
   version = "v1.33.0"
 
 [[projects]]
+  digest = "1:a5ac8d0a1a49912833a02e608b1a35a91dc447b6f5353b78ef07d60990fdb7bc"
   name = "github.com/godbus/dbus"
   packages = ["."]
+  pruneopts = ""
   revision = "a389bdde4dd695d414e47b755e95e72b7826432c"
   version = "v4.1.0"
 
 [[projects]]
+  digest = "1:4f767a115bc8e08576f6d38ab73c376fc1b1cd3bb5041171c9e8668cc7739b52"
   name = "github.com/jmespath/go-jmespath"
   packages = ["."]
+  pruneopts = ""
   revision = "0b12d6b5"
 
 [[projects]]
   branch = "master"
+  digest = "1:3a68300fea6c3392d3959fc993b7c0e86cc45b403d04477d0acd0e96f1a933a0"
   name = "github.com/zalando/go-keyring"
   packages = [
     ".",
-    "secret_service"
+    "secret_service",
   ]
+  pruneopts = ""
   revision = "6d81c293b3fbc8a9b1bcf4bc9c167c2e1d1f52cf"
 
 [[projects]]
   branch = "master"
+  digest = "1:267751ccc8b5b4a98f03a4d1555d1ffc5eaa70d0ac0bbb4325306fee5faf3646"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
+  pruneopts = ""
   revision = "21652f85b0fdddb6c2b6b77a5beca5c5a908174a"
 
 [[projects]]
   branch = "master"
+  digest = "1:2f5a10a19fa7f04512a69ee9fe09d768868fdee27f095d1de75d4cb916325893"
   name = "golang.org/x/net"
   packages = [
     "html",
     "html/atom",
     "idna",
-    "publicsuffix"
+    "publicsuffix",
   ]
+  pruneopts = ""
   revision = "92b859f39abd2d91a854c9f9c4621b2f5054a92d"
 
 [[projects]]
   branch = "master"
+  digest = "1:bf8986e04b2cb07fc930952e182026d23af0ddd569889daa89638c3c1b80cd86"
   name = "golang.org/x/sys"
   packages = [
     "unix",
-    "windows"
+    "windows",
   ]
+  pruneopts = ""
   revision = "89ac7f292d17a339edab4de8efcba5d8672ff661"
 
 [[projects]]
+  digest = "1:af9bfca4298ef7502c52b1459df274eed401a4f5498b900e9a92d28d3d87ac5a"
   name = "golang.org/x/text"
   packages = [
     "collate",
@@ -108,14 +127,25 @@
     "unicode/bidi",
     "unicode/cldr",
     "unicode/norm",
-    "unicode/rangetable"
+    "unicode/rangetable",
   ]
+  pruneopts = ""
   revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
   version = "v0.3.0"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8eb38c9824cd9a10c89499a1a1b57f3516492734cfeb4e7a0ef896f543cf8795"
+  input-imports = [
+    "github.com/aws/aws-sdk-go/aws",
+    "github.com/aws/aws-sdk-go/aws/session",
+    "github.com/aws/aws-sdk-go/service/sts",
+    "github.com/aws/aws-sdk-go/service/sts/stsiface",
+    "github.com/go-ini/ini",
+    "github.com/zalando/go-keyring",
+    "golang.org/x/crypto/ssh/terminal",
+    "golang.org/x/net/html",
+    "golang.org/x/net/publicsuffix",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1
