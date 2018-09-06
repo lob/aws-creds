@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	keyringPasswordService = "aws-creds Password" // nolint: gas
+	keyringPasswordService = "aws-creds Password" // nolint: gosec
 	keyringSessionService  = "aws-creds Session Cookie"
 )
 

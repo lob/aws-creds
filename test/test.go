@@ -94,7 +94,7 @@ func LoadTestFile(t *testing.T, name string) string {
 	_, b, _, _ := runtime.Caller(0)
 	projectDir := filepath.Dir(b)
 	p := path.Join(projectDir, "..", "testdata", name)
-	contents, err := ioutil.ReadFile(p)
+	contents, err := ioutil.ReadFile(p) // nolint: gosec
 	if err != nil {
 		t.Fatalf("unexpected error when reading file %s: %s", p, err)
 	}
