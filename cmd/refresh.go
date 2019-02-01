@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"sync"
 
 	"github.com/lob/aws-creds/aws"
 	"github.com/lob/aws-creds/config"
@@ -17,18 +18,39 @@ const (
 )
 
 func executeRefresh(cmd *Cmd) error {
-	if cmd.Profile == "" {
+	if len(cmd.Profiles) == 0 {
 		return errors.New("you must provide a profile with '-p', e.g. 'aws-creds -p production'")
 	}
-	var profile *config.Profile
-	for _, p := range cmd.Config.Profiles {
-		if p.Name == cmd.Profile {
-			profile = p
-			break
+
+	var profiles []*config.Profile
+
+	for _, selectedProfile := range cmd.Profiles {
+		for _, availableProfile := range cmd.Config.Profiles {
+			if selectedProfile == availableProfile.Name {
+				profiles = append(profiles, availableProfile)
+			}
 		}
 	}
-	if profile == nil {
-		return fmt.Errorf("profile %s not configured", cmd.Profile)
+
+	if len(profiles) != len(cmd.Profiles) {
+		unknownProfiles := make([]string, len(cmd.Profiles))
+
+		for _, selectedProfile := range cmd.Profiles {
+			found := false
+
+			for _, knownProfile := range profiles {
+				if selectedProfile == knownProfile.Name {
+					found = true
+					break
+				}
+			}
+
+			if !found {
+				unknownProfiles = append(unknownProfiles, selectedProfile)
+			}
+		}
+
+		return fmt.Errorf("profile(s) %s not configured", strings.Join(unknownProfiles, ", "))
 	}
 
 	var password string
@@ -87,12 +109,37 @@ func executeRefresh(cmd *Cmd) error {
 		return err
 	}
 
-	creds, err := aws.GetCreds(cmd.STS, saml, profile)
-	if err != nil {
-		return err
+	var wg sync.WaitGroup
+	errCh := make(chan error, len(profiles))
+
+	for _, profile := range profiles {
+		wg.Add(1)
+		go renewCredentials(cmd, profile, saml, &wg, errCh)
 	}
 
-	return aws.WriteCreds(creds, profile, cmd.Config.CredentialsFilepath)
+	wg.Wait()
+
+	close(errCh)
+
+	for e := range errCh {
+		if e != nil {
+			return e
+		}
+	}
+
+	return nil
+}
+
+func renewCredentials(cmd *Cmd, p *config.Profile, saml *okta.SAMLResponse, wg *sync.WaitGroup, errCh chan error) {
+	defer wg.Done()
+
+	creds, err := aws.GetCreds(cmd.STS, saml, p)
+	if err != nil {
+		errCh <- err
+		return
+	}
+
+	errCh <- aws.WriteCreds(creds, p, cmd.Config.CredentialsFilepath)
 }
 
 func getSessionCookie(cmd *Cmd) (string, error) {

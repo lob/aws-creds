@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
@@ -13,13 +14,24 @@ import (
 	"github.com/lob/aws-creds/input"
 )
 
+type awsProfiles []string
+
+func (i *awsProfiles) String() string {
+	return strings.Join(*i, ", ")
+}
+
+func (i *awsProfiles) Set(value string) error {
+	*i = append(*i, value)
+	return nil
+}
+
 // Cmd contains the necessary information for the CLI to function.
 type Cmd struct {
-	Command string
-	Config  *config.Config
-	Profile string
-	Input   input.Prompter
-	STS     stsiface.STSAPI
+	Command  string
+	Config   *config.Config
+	Profiles awsProfiles
+	Input    input.Prompter
+	STS      stsiface.STSAPI
 }
 
 const (
@@ -27,15 +39,20 @@ const (
 	refreshCommand   = ""
 )
 
+var profiles awsProfiles
+
 var (
 	version = "development build"
 
 	defaultConfigFilepath = os.Getenv("HOME") + "/.aws-creds/config"
 	configFilepath        = flag.String("c", defaultConfigFilepath, fmt.Sprintf("config file (default: %q)", defaultConfigFilepath))
-	profile               = flag.String("p", "", "AWS profile to retrieve credentials for (required)")
 	printVersion          = flag.Bool("v", false, "print the version")
 	printHelp             = flag.Bool("h", false, "print this help text")
 )
+
+func init() {
+	flag.Var(&profiles, "p", "AWS profiles to retrieve credentials for (required)")
+}
 
 // Execute runs the CLI application.
 func Execute(p input.Prompter) {
@@ -65,11 +82,11 @@ func execute(args []string, p input.Prompter) error {
 	}
 
 	cmd := &Cmd{
-		Command: "",
-		Config:  conf,
-		Profile: *profile,
-		Input:   p,
-		STS:     sts.New(sess),
+		Command:  "",
+		Config:   conf,
+		Profiles: profiles,
+		Input:    p,
+		STS:      sts.New(sess),
 	}
 	if len(args) > 0 {
 		cmd.Command = args[0]

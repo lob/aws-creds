@@ -3,6 +3,7 @@ package aws
 import (
 	"fmt"
 	"os"
+	"sync"
 
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/go-ini/ini"
@@ -15,8 +16,13 @@ const (
 	sessionToken    = "aws_session_token"
 )
 
+var mutex = &sync.Mutex{}
+
 // WriteCreds takes AWS credentials and writes it to ~/.aws/credentials.
 func WriteCreds(creds *sts.Credentials, profile *config.Profile, filepath string) error {
+	mutex.Lock()
+	defer mutex.Unlock()
+
 	file, err := ini.Load(filepath)
 	if err != nil {
 		if !os.IsNotExist(err) {
