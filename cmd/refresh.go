@@ -25,32 +25,17 @@ func executeRefresh(cmd *Cmd) error {
 	var profiles []*config.Profile
 
 	for _, selectedProfile := range cmd.Profiles {
+		found := false
 		for _, availableProfile := range cmd.Config.Profiles {
 			if selectedProfile == availableProfile.Name {
 				profiles = append(profiles, availableProfile)
+				found = true
+				break
 			}
 		}
-	}
-
-	if len(profiles) != len(cmd.Profiles) {
-		unknownProfiles := make([]string, len(cmd.Profiles))
-
-		for _, selectedProfile := range cmd.Profiles {
-			found := false
-
-			for _, knownProfile := range profiles {
-				if selectedProfile == knownProfile.Name {
-					found = true
-					break
-				}
-			}
-
-			if !found {
-				unknownProfiles = append(unknownProfiles, selectedProfile)
-			}
+		if !found {
+			return fmt.Errorf("profile %s not configured", selectedProfile)
 		}
-
-		return fmt.Errorf("profile(s) %s not configured", strings.Join(unknownProfiles, ", "))
 	}
 
 	var password string
