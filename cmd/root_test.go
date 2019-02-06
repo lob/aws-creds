@@ -62,7 +62,7 @@ func TestProfile(t *testing.T) {
 		t.Fatalf("unexpected error when configuring for profile tests: %s", err)
 	}
 
-	*profile = "profile"
+	profiles = []string{"profile"}
 
 	if err := execute([]string{refreshCommand}, fakeInput); err == nil {
 		t.Errorf("unexpected error when executing refresh command with a profile set")
@@ -79,5 +79,5 @@ func TestUnknownCommand(t *testing.T) {
 func resetFlags() {
 	*printHelp = false
 	*configFilepath = defaultConfigFilepath
-	*profile = ""
+	profiles = []string{}
 }

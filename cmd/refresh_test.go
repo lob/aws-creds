@@ -59,11 +59,11 @@ func TestExecuteRefresh(t *testing.T) {
 	defer test.Cleanup(t, conf.CredentialsFilepath)
 	creds := test.NewCredentials()
 	cmd := &Cmd{
-		Command: "",
-		Config:  conf,
-		Profile: conf.Profiles[0].Name,
-		Input:   test.NewNoopInput(),
-		STS:     &test.MockSTS{Creds: creds},
+		Command:  "",
+		Config:   conf,
+		Profiles: []string{conf.Profiles[0].Name},
+		Input:    test.NewNoopInput(),
+		STS:      &test.MockSTS{Creds: creds},
 	}
 
 	err = executeRefresh(cmd)
@@ -71,19 +71,19 @@ func TestExecuteRefresh(t *testing.T) {
 		t.Fatalf("unexpected error when executing refresh: %s", err)
 	}
 
-	cmd.Profile = "invalid"
+	cmd.Profiles = []string{"invalid"}
 	err = executeRefresh(cmd)
 	if err == nil {
 		t.Fatalf("expected error when executing refresh with an invalid profile: %s", err)
 	}
 
-	cmd.Profile = ""
+	cmd.Profiles = []string{}
 	err = executeRefresh(cmd)
 	if err == nil {
 		t.Fatalf("expected error when executing refresh without a profile: %s", err)
 	}
 
-	cmd.Profile = conf.Profiles[0].Name
+	cmd.Profiles = []string{conf.Profiles[0].Name}
 	err = keyring.Set(keyringPasswordService, conf.Username, password)
 	if err != nil {
 		t.Fatalf("unexpected error when setting password in keyring: %s", err)
