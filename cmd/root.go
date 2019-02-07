@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -46,6 +47,7 @@ var (
 
 	defaultConfigFilepath = os.Getenv("HOME") + "/.aws-creds/config"
 	configFilepath        = flag.String("c", defaultConfigFilepath, fmt.Sprintf("config file (default: %q)", defaultConfigFilepath))
+	allProfiles           = flag.Bool("a", false, "retrieve credentials for all configured AWS profiles")
 	printVersion          = flag.Bool("v", false, "print the version")
 	printHelp             = flag.Bool("h", false, "print this help text")
 )
@@ -102,6 +104,20 @@ func execute(args []string, p input.Prompter) error {
 		if err != nil {
 			return err
 		}
+
+		if *allProfiles {
+			if len(profiles) > 0 {
+				return errors.New("you can provide profiles with '-p' or select all with '-a' but not both")
+			}
+
+			var allProfiles awsProfiles
+			for _, p := range conf.Profiles {
+				allProfiles = append(allProfiles, p.Name)
+			}
+
+			cmd.Profiles = allProfiles
+		}
+
 		return executeRefresh(cmd)
 	default:
 		return fmt.Errorf("unknown command: %s", cmd.Command)
