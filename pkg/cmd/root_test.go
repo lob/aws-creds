@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lob/aws-creds/test"
+	"github.com/lob/aws-creds/internal/test"
 )
 
 func TestExecute(t *testing.T) {

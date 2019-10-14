@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lob/aws-creds/config"
-	"github.com/lob/aws-creds/test"
+	"github.com/lob/aws-creds/internal/test"
+	"github.com/lob/aws-creds/pkg/config"
 	"github.com/zalando/go-keyring"
 )
 
@@ -54,7 +54,7 @@ func TestExecuteRefresh(t *testing.T) {
 	conf.Username = "user"
 	conf.OktaHost = srv.URL
 	conf.OktaAppPath = appPath
-	conf.Profiles = []*config.Profile{{"staging", "arn:aws:iam::123456789001:role/EngineeringRole"}}
+	conf.Profiles = []*config.Profile{{Name: "staging", RoleARN: "arn:aws:iam::123456789001:role/EngineeringRole"}}
 	conf.CredentialsFilepath = cfp
 	defer test.Cleanup(t, conf.CredentialsFilepath)
 	creds := test.NewCredentials()

@@ -48,14 +48,14 @@ func NewArrayInput(responses []string) *ArrayInput {
 // Prompt returns a new response based on how many calls have been made previously.
 func (i *ArrayInput) Prompt(msg string) (string, error) {
 	resp := i.responses[i.count]
-	i.count = i.count + 1
+	i.count++
 	return resp, nil
 }
 
 // PromptPassword just returns the inputted message.
 func (i *ArrayInput) PromptPassword(msg string) (string, error) {
 	resp := i.responses[i.count]
-	i.count = i.count + 1
+	i.count++
 	return resp, nil
 }
 

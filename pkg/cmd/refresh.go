@@ -6,9 +6,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/lob/aws-creds/aws"
-	"github.com/lob/aws-creds/config"
-	"github.com/lob/aws-creds/okta"
+	"github.com/lob/aws-creds/pkg/aws"
+	"github.com/lob/aws-creds/pkg/config"
+	"github.com/lob/aws-creds/pkg/okta"
 	"github.com/zalando/go-keyring"
 )
 

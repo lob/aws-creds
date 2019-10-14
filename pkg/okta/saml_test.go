@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/lob/aws-creds/test"
+	"github.com/lob/aws-creds/internal/test"
 )
 
 func TestGetSAMLResponse(t *testing.T) {

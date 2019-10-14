@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/lob/aws-creds/cmd"
-	"github.com/lob/aws-creds/input"
+	"github.com/lob/aws-creds/pkg/cmd"
+	"github.com/lob/aws-creds/pkg/input"
 )
 
 func main() {

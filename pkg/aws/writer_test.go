@@ -7,8 +7,8 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/go-ini/ini"
-	"github.com/lob/aws-creds/config"
-	"github.com/lob/aws-creds/test"
+	"github.com/lob/aws-creds/internal/test"
+	"github.com/lob/aws-creds/pkg/config"
 )
 
 func TestWriteCreds(t *testing.T) {
