@@ -10,9 +10,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/aws/aws-sdk-go/service/sts/stsiface"
-
-	"github.com/lob/aws-creds/config"
-	"github.com/lob/aws-creds/input"
+	"github.com/lob/aws-creds/pkg/config"
+	"github.com/lob/aws-creds/pkg/input"
 )
 
 type awsProfiles []string

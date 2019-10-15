@@ -20,7 +20,11 @@ func TestPrompt(t *testing.T) {
 	wantIn := "Testing"
 	wantOut := "Prompt: "
 
-	bin.WriteString(fmt.Sprintf("%s\n", wantIn))
+	_, err := bin.WriteString(fmt.Sprintf("%s\n", wantIn))
+	if err != nil {
+		t.Fatalf("unexpected error when writing string: %s", err)
+	}
+
 	gotIn, err := i.Prompt(wantOut)
 	if err != nil {
 		t.Fatalf("unexpected error when prompting for input: %s", err)

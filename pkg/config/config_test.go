@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lob/aws-creds/test"
+	"github.com/lob/aws-creds/internal/test"
 )
 
 const badPermissions = 0200

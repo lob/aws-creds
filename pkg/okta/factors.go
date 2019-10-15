@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/lob/aws-creds/input"
+	"github.com/lob/aws-creds/pkg/input"
 )
 
 const (

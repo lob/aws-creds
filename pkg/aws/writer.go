@@ -7,7 +7,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/go-ini/ini"
-	"github.com/lob/aws-creds/config"
+	"github.com/lob/aws-creds/pkg/config"
 )
 
 const (

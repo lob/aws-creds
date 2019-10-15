@@ -8,8 +8,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/aws/aws-sdk-go/service/sts/stsiface"
-	"github.com/lob/aws-creds/config"
-	"github.com/lob/aws-creds/okta"
+	"github.com/lob/aws-creds/pkg/config"
+	"github.com/lob/aws-creds/pkg/okta"
 )
 
 var (

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/lob/aws-creds/config"
-	"github.com/lob/aws-creds/input"
+	"github.com/lob/aws-creds/pkg/config"
+	"github.com/lob/aws-creds/pkg/input"
 )
 
 // Auth represents the authentication response from Okta.

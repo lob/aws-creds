@@ -3,8 +3,8 @@ package okta
 import (
 	"fmt"
 
-	"github.com/lob/aws-creds/config"
-	"github.com/lob/aws-creds/input"
+	"github.com/lob/aws-creds/pkg/config"
+	"github.com/lob/aws-creds/pkg/input"
 )
 
 // Login to Okta with the given username and password.

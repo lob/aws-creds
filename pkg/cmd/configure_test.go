@@ -5,8 +5,8 @@ import (
 	"path"
 	"testing"
 
-	"github.com/lob/aws-creds/config"
-	"github.com/lob/aws-creds/test"
+	"github.com/lob/aws-creds/internal/test"
+	"github.com/lob/aws-creds/pkg/config"
 )
 
 func TestExecuteConfigure(t *testing.T) {
