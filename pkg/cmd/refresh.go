@@ -57,6 +57,16 @@ func executeRefresh(cmd *Cmd) error {
 	}
 
 	saml, newSessionCookie, err := okta.Login(cmd.Config, cmd.Input, sessionCookie, password)
+	if err != nil {
+		// Check if error is due to a network problem. If it is a network error,
+		// return error but do not delete the password from the keyring.
+		if urlError, ok := err.(*url.Error); ok {
+			if _, ok := urlError.Err.(*net.OpError); ok {
+				fmt.Println("Unable to connect with Okta. Make sure you are connected to the internet and try again.")
+				return err
+			}
+		}
+	}
 	if sessionCookie != "" && err != nil {
 		if deleteErr := keyring.Delete(keyringSessionService, cmd.Config.Username); deleteErr != nil {
 			return deleteErr
@@ -72,15 +82,6 @@ func executeRefresh(cmd *Cmd) error {
 		saml, newSessionCookie, err = okta.Login(cmd.Config, cmd.Input, "", password)
 	}
 	if err != nil {
-		// Check if error is due to a network problem. If it is a network error,
-		// return error but do not delete the password from the keyring.
-		if urlError, ok := err.(*url.Error); ok {
-			if _, ok := urlError.Err.(*net.OpError); ok {
-				fmt.Println("Unable to connect with Okta. Make sure you are connected to the internet and try again.")
-				return err
-			}
-		}
-
 		deleteErr := keyring.Delete(keyringPasswordService, cmd.Config.Username)
 		switch deleteErr {
 		case nil:
