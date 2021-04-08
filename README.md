@@ -64,7 +64,7 @@ $ export AWS_PROFILE=sandbox         # Also
 $ aws s3 ls                          # Equivalent
 ```
 
-> Note: eventually these credentials will expire and you will need to re-run `aws-creds -p $PROFILE_NAME`.
+> Note: these credentials expire every hour, so you will need to re-run `aws-creds -p $PROFILE_NAME` periodically.
 
 ## Building
 
