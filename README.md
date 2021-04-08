@@ -8,13 +8,13 @@ A CLI tool to authenticate with Okta as the IdP to fetch AWS credentials.
 
 To install `aws-creds`:
 
-1. Clone this repository
-2. Run `make build`
+1. Clone this repository.
+2. Run `make build`.
 3. Copy `./bin/aws-creds` to `/usr/local/bin`, or your preferred executables folder.
 
 > Note: You can set the `BIN_DIR` and `VERSION` environment variables to override the build destination and version number.
 >
-> For example, building aws-creds into my `~/home/bin` directory:
+> For example, building aws-creds directly into my `~/home/bin` directory:
 > ```
 > [aws-creds]$ VERSION=vX.Y.Z BIN_DIR=$HOME/bin make build
 > [aws-creds]$ ~/bin/aws-creds -v
@@ -23,50 +23,48 @@ To install `aws-creds`:
 
 ## Usage
 
-Once you have installed `aws-creds`, create a file `$HOME/.aws-creds/config` with content something like this:
+> Note: This assumes you have already installed the [AWS CLI](https://aws.amazon.com/cli/).
 
-```json
-{
-  "username": "<YOUR_OKTA_USER_NAME>", // Your Okta username
-  "okta_host": "https://<YOUR_COMPANY>.okta.com", // Your organization's Okta URL
-  "okta_app_path": "/home/amazon_aws/XXXXXXXXXXXXXXXXXXXX/###", // Okta app path for AWS
-  "preferred_factor_type": "token:software:totp",
-  "profiles": [
-    {
-      "name": "<PROFILE_NAME>", // One of your AWS profiles
-      "role_arn": "arn:aws:iam:<ACCOUNT_ID>:role/<ROLE_NAME>" // The AWS Role to assume
-    },
-    // Other profiles
-  ]
-}
-```
-
-> Note: Remove all `//` comments in the final `.json` file.
-
-Then in your `$HOME/.aws/config` make sure you have something like this:
+Once you have installed `aws-creds`, run `aws-creds configure`.
+This will prompt you for your okta username, okta host + okta aws app path, and information about your aws profiles + role ARNs.
 
 ```
-[profile <PROFILE_NAME>]
-region = <PREFERRED_AWS_REGION>
+$ aws-creds configure
+Configuring global settings...
+Okta username: yourname
+Okta AWS Embed Link (e.g. https://example.okta.com/home/amazon_aws/0oa54k1gk2ukOJ9nGDt7/252): https://example.okta.com/home/amazon_aws/0oa54k1gk2ukOJ9nGDt7/123
+
+Configuring profile settings...
+Profile name: test
+Role ARN (e.g. arn:aws:iam::123456789001:role/EngineeringRole): arn:aws:iam::123456789001:role/SomeRole
+Do you want to configure more profiles? [y/N]:
 ```
 
-Then run
+Once complete, `aws-creds` will create the file `$HOME/.aws-creds/config` with this information.
+
+To fetch credentials, run `aws-creds -p`:
 
 ```
-aws -p PROFILE_NAME
+$ aws-creds -p $PROFILE_NAME
 ```
 
-This may prompt you for your Okta password, Preferred multi-factor auth method, and then your one-time password.
+This may prompt you for your Okta password, preferred multi-factor auth method, and then your one-time password.
 
-`aws-creds` will populate your `$HOME/.aws/credentials` file with credentials from Okta.
+`aws-creds` will then populate your `$HOME/.aws/credentials` file with credentials from Okta.
 
-Then you can run aws commands like:
+Finally pass `--profile=$PROFILE_NAME`, or set `AWS_PROFILE=$PROFILE_NAME`, when running `aws` commands.
+For example:
 
 ```
-aws sts get-caller-identity --profile PROFILE_NAME
+$ aws s3 ls --profile $PROFILE_NAME
+
+$ AWS_PROFILE=sandbox aws s3 ls      # Equivalent
+
+$ export AWS_PROFILE=sandbox         # Also
+$ aws s3 ls                          # Equivalent
 ```
 
-Eventually these credentials will expire and you will need to re-run `aws -p PROFILE_NAME`.
+> Note: eventually these credentials will expire and you will need to re-run `aws-creds -p $PROFILE_NAME`.
 
 ## Building
 
