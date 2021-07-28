@@ -13,15 +13,19 @@ import (
 )
 
 var (
-	roleSAMLAttribute     = "https://aws.amazon.com/SAML/Attributes/Role"
-	durationSAMLAttribute = "https://aws.amazon.com/SAML/Attributes/SessionDuration"
-
-	maxDuration int64 = 3600
+	roleSAMLAttribute           = "https://aws.amazon.com/SAML/Attributes/Role"
+	durationSAMLAttribute       = "https://aws.amazon.com/SAML/Attributes/SessionDuration"
+	defaultDuration       int64 = 3600
 )
 
 // GetCreds fetches AWS credentials using a SAML response.
 func GetCreds(svc stsiface.STSAPI, saml *okta.SAMLResponse, profile *config.Profile) (*sts.Credentials, error) {
 	roles, duration := parseSAMLAttributes(saml)
+
+	// Override default duration
+	if profile.Duration > 3600 {
+		duration = profile.Duration
+	}
 
 	var role string
 	for _, r := range roles {
@@ -55,7 +59,7 @@ func GetCreds(svc stsiface.STSAPI, saml *okta.SAMLResponse, profile *config.Prof
 
 func parseSAMLAttributes(saml *okta.SAMLResponse) ([]string, int64) {
 	var roles []string
-	duration := maxDuration
+	duration := defaultDuration
 
 	for _, attr := range saml.Attributes {
 		switch attr.Name {
