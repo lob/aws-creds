@@ -51,7 +51,7 @@ func GetCreds(svc stsiface.STSAPI, saml *okta.SAMLResponse, profile *config.Prof
 
 	resp, err := svc.AssumeRoleWithSAML(params)
 	if err != nil {
-		fmt.Println(fmt.Errorf("Failed to assume role for %s", profile.Name))
+		fmt.Println("Failed to assume role for " + profile.Name)
 		return nil, err
 	}
 
