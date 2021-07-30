@@ -127,16 +127,16 @@ func executeRefresh(cmd *Cmd) error {
 	return nil
 }
 
-func renewCredentials(cmd *Cmd, p *config.Profile, saml *okta.SAMLResponse, wg *sync.WaitGroup, errCh chan error) {
+func renewCredentials(cmd *Cmd, profile *config.Profile, saml *okta.SAMLResponse, wg *sync.WaitGroup, errCh chan error) {
 	defer wg.Done()
 
-	creds, err := aws.GetCreds(cmd.STS, saml, p)
+	creds, err := aws.GetCreds(cmd.STS, saml, profile)
 	if err != nil {
 		errCh <- err
 		return
 	}
 
-	errCh <- aws.WriteCreds(creds, p, cmd.Config.CredentialsFilepath)
+	errCh <- aws.WriteCreds(creds, profile, cmd.Config.CredentialsFilepath)
 }
 
 func getSessionCookie(cmd *Cmd) (string, error) {

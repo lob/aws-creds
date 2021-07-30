@@ -53,8 +53,8 @@ func TestConfig(t *testing.T) {
 	conf1.OktaHost = "https://test.okta.com"
 	conf1.OktaAppPath = "/home/amazon_aws/0oa54k1gk2ukOJ9nGDt7/252"
 	conf1.Profiles = []*Profile{
-		{"staging", "arn:staging"},
-		{"production", "arn:production"},
+		{"staging", "arn:staging", 3600},
+		{"production", "arn:production", 3600},
 	}
 	if err := conf1.Save(); err != nil {
 		t.Fatalf("unexpected error when saving config: %s", err)

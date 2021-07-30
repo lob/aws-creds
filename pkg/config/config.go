@@ -23,8 +23,9 @@ type Config struct {
 
 // Profile contains the configuration of each AWS profile.
 type Profile struct {
-	Name    string `json:"name"`
-	RoleARN string `json:"role_arn"`
+	Name     string `json:"name"`
+	RoleARN  string `json:"role_arn"`
+	Duration int64  `json:"duration"`
 }
 
 const (
