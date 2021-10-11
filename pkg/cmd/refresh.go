@@ -132,7 +132,7 @@ func renewCredentials(cmd *Cmd, profile *config.Profile, saml *okta.SAMLResponse
 
 	creds, err := aws.GetCreds(cmd.STS, saml, profile)
 	if err != nil {
-		errCh <- err
+		errCh <- fmt.Errorf("error renewing creds for \"%s\" profile: %w", profile.Name, err)
 		return
 	}
 
