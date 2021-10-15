@@ -121,5 +121,6 @@ func checkError(resp *http.Response) error {
 		return err
 	}
 
+	fmt.Printf("Okta error (%d): %s\n", resp.StatusCode, errMsg.Summary)
 	return fmt.Errorf("%s (%d)", errMsg.Summary, resp.StatusCode)
 }
