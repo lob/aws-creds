@@ -52,7 +52,7 @@ func promptForFactor(factors []*Factor, p input.Prompter) (int, error) {
 func verifyTOTP(c *Client, f *Factor, a *Auth, p input.Prompter) error {
 	var resp io.Reader
 	for {
-		totp, err := p.Prompt("Enter TOTP: ")
+		totp, err := p.Prompt("Enter Okta One-Time Password (TOTP): ")
 		if err != nil {
 			return err
 		}
