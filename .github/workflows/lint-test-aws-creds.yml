@@ -27,10 +27,10 @@ jobs:
           path: |
               ~/.cache/go-build
               /go/pkg/mod
-          key: deps-v1-{{ .go-version }}-{{ hashFiles('**/go.sum') }}
+          key: deps-v1-{{ runner.os }}-{{ hashFiles('**/go.sum') }}
           restore-keys: |
-              deps-v1-{{ .go-version }}-{{ hashFiles('**/go.sum') }}
-              deps-v1-{{ .go-version }}-
+              deps-v1-{{ runner.os }}-{{ hashFiles('**/go.sum') }}
+              deps-v1-{{ runner.os }}-
               deps-v1-
 
       - name: Make Linting / Testing
