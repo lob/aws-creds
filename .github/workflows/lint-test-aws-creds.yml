@@ -35,7 +35,7 @@ jobs:
 
       - name: Make Linting / Testing
         id: lint-test
-        uses: "./.github/actions/make-lint-test"
+        uses: "./.github/make-lint-test"
 
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v2
