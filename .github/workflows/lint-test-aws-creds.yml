@@ -7,7 +7,7 @@ jobs:
 
   make-lint-test:
     # Running on Lob's Private Github Runners
-    runs-on: [self-hosted, Linux, X64, lob-runner]
+    runs-on: [ubuntu-latest]
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
