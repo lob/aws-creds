@@ -1,0 +1,25 @@
+name: 'Make Setup / Lint / Test / Enforce'
+description: 'Running the setup, lint, test, and enforce commands in make'
+runs:
+  using: "composite"
+  steps:
+    - name: "Install Dependencies"
+      id: make_setup
+      shell: bash
+      run: |
+        make setup
+    - name: "Run Linter"
+      id: make_lint
+      shell: bash
+      run: |
+        make lint
+    - name: "Run tests"
+      id: make_test
+      shell: bash
+      run: |
+        make test
+    - name: "Enforce coverage"
+      id: make_enforce
+      shell: bash
+      run: |
+        make enforce

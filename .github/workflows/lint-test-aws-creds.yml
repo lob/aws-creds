@@ -18,13 +18,6 @@ jobs:
         with:
           go-version: '^1.13.1' # The Go version to download (if necessary) and use.
 
-      - uses: actions/checkout@v2
-        with:
-          repository: lob/github-actions
-          ref: jeremy/make
-          token: "${{ secrets.PRIVATE_GITHUB_ACTION_TOKEN }}"
-          path: ./.github/lob
-
       - name: Cache go packages
         uses: actions/cache@v2
         env:
@@ -42,7 +35,7 @@ jobs:
 
       - name: Make Linting / Testing
         id: lint-test
-        uses: "./.github/lob/actions/make-lint-test"
+        uses: "./.github/actions/make-lint-test"
 
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v2
