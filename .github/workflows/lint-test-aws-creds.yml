@@ -1,0 +1,45 @@
+name: Lint / Test aws-creds
+
+# Run this when someone dispatches this action manually
+on: [push]
+
+jobs:
+
+  make-lint-test:
+    # Running on Lob's Private Github Runners
+    runs-on: [ubuntu-latest]
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '^1.13.1' # The Go version to download (if necessary) and use.
+
+      - name: Cache go packages
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-go-packages
+        with:
+          # npm cache files are stored in `~/.npm` on Linux/macOS
+          path: |
+              ~/.cache/go-build
+              /go/pkg/mod
+          key: deps-v1-{{ runner.os }}-{{ hashFiles('**/go.sum') }}
+          restore-keys: |
+              deps-v1-{{ runner.os }}-{{ hashFiles('**/go.sum') }}
+              deps-v1-{{ runner.os }}-
+              deps-v1-
+
+      - name: Make Linting / Testing
+        id: lint-test
+        uses: "./.github/make-lint-test"
+
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage
+          path: coverage.out
+          retention-days: 5
