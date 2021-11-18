@@ -1,5 +1,5 @@
 # aws-creds
-
+.
 A CLI tool to authenticate with Okta as the IdP to fetch AWS credentials.
 
 ## Installation
