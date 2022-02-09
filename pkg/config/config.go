@@ -16,6 +16,7 @@ type Config struct {
 	OktaHost            string     `json:"okta_host,omitempty"`
 	OktaAppPath         string     `json:"okta_app_path,omitempty"`
 	PreferredFactorType string     `json:"preferred_factor_type,omitempty"`
+	EnableKeyring       bool       `json:"enable_keyring"`
 	Profiles            []*Profile `json:"profiles"`
 	CredentialsFilepath string     `json:"-"`
 	filepath            string
@@ -48,7 +49,7 @@ func New(fp string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Config{CredentialsFilepath: cfp, filepath: fp}, nil
+	return &Config{CredentialsFilepath: cfp, filepath: fp, EnableKeyring: true}, nil
 }
 
 // Load loads data from the config file into the Config struct.

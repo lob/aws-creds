@@ -67,7 +67,7 @@ func executeRefresh(cmd *Cmd) error {
 			}
 		}
 	}
-	if sessionCookie != "" && err != nil {
+	if sessionCookie != "" && err != nil && cmd.Config.EnableKeyring {
 		if deleteErr := keyring.Delete(keyringSessionService, cmd.Config.Username); deleteErr != nil {
 			return deleteErr
 		}
@@ -81,7 +81,7 @@ func executeRefresh(cmd *Cmd) error {
 
 		saml, newSessionCookie, err = okta.Login(cmd.Config, cmd.Input, "", password)
 	}
-	if err != nil {
+	if err != nil && cmd.Config.EnableKeyring {
 		deleteErr := keyring.Delete(keyringPasswordService, cmd.Config.Username)
 		switch deleteErr {
 		case nil:
@@ -101,9 +101,12 @@ func executeRefresh(cmd *Cmd) error {
 			return err
 		}
 	}
-	err = keyring.Set(keyringSessionService, cmd.Config.Username, newSessionCookie)
-	if err != nil {
-		return err
+
+	if cmd.Config.EnableKeyring {
+		err = keyring.Set(keyringSessionService, cmd.Config.Username, newSessionCookie)
+		if err != nil {
+			return err
+		}
 	}
 
 	var wg sync.WaitGroup
@@ -140,6 +143,10 @@ func renewCredentials(cmd *Cmd, profile *config.Profile, saml *okta.SAMLResponse
 }
 
 func getSessionCookie(cmd *Cmd) (string, error) {
+	if !cmd.Config.EnableKeyring {
+		return "", nil
+	}
+
 	cookie, err := keyring.Get(keyringSessionService, cmd.Config.Username)
 	if err != nil && err != keyring.ErrNotFound {
 		return "", err
@@ -151,16 +158,18 @@ func getSessionCookie(cmd *Cmd) (string, error) {
 }
 
 func getPassword(cmd *Cmd) (password string, prompted bool, err error) {
-	password, err = keyring.Get(keyringPasswordService, cmd.Config.Username)
-	if err != nil && err != keyring.ErrNotFound {
-		return "", false, err
+	if cmd.Config.EnableKeyring {
+		password, err = keyring.Get(keyringPasswordService, cmd.Config.Username)
+		if err != nil && err != keyring.ErrNotFound {
+			return "", false, err
+		}
+		if err == nil {
+			fmt.Println("Password fetched from keyring.")
+			return password, false, nil
+		}
 	}
-	if err == nil {
-		fmt.Println("Password fetched from keyring.")
-		return password, false, nil
-	}
-	fmt.Println("Password not found in keyring.")
 
+	fmt.Println("Password not found in keyring.")
 	password, err = promptPassword(cmd)
 	return password, true, err
 }
@@ -175,6 +184,10 @@ func promptPassword(cmd *Cmd) (string, error) {
 }
 
 func promptSavePassword(cmd *Cmd, password string) error {
+	if !cmd.Config.EnableKeyring {
+		return nil
+	}
+
 	save, err := cmd.Input.Prompt("Do you want to securely save your password in your system keyring? [y/N]: ")
 	if err != nil {
 		return err

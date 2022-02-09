@@ -65,3 +65,4 @@ tags
 
 # End of https://www.gitignore.io/api/go,vim,macos
 .idea
+.vscode
