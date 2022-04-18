@@ -66,6 +66,10 @@ $ aws s3 ls                          # Equivalent
 
 > Note: these credentials expire every hour, so you will need to re-run `aws-creds -p $PROFILE_NAME` periodically.
 
+### Headless Linux / WSL Users
+
+This utility uses a keyring library that is incompatible with certain linux configurations. To disable keyring caching, modify the `~/.aws-creds/config` file to include `"enable_keyring" : false,` after setting up the tool. 
+
 ## Building
 
 `aws-creds` has a Makefile with helper commands:

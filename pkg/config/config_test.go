@@ -52,6 +52,7 @@ func TestConfig(t *testing.T) {
 	conf1.Username = "test_user"
 	conf1.OktaHost = "https://test.okta.com"
 	conf1.OktaAppPath = "/home/amazon_aws/0oa54k1gk2ukOJ9nGDt7/252"
+	conf1.EnableKeyring = true
 	conf1.Profiles = []*Profile{
 		{"staging", "arn:staging", 3600},
 		{"production", "arn:production", 3600},
