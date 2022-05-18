@@ -55,3 +55,28 @@ func TestGetCreds(t *testing.T) {
 		t.Errorf("expected error when getting creds for an invalid profile")
 	}
 }
+
+func TestGetCredsNilRoleARN(t *testing.T) {
+	roleARN := ""
+	duration := "1800"
+	creds := test.NewCredentials()
+	svc := &test.MockSTS{Creds: creds}
+	saml := &okta.SAMLResponse{
+		Attributes: []okta.Attribute{
+			{
+				Name:   roleSAMLAttribute,
+				Values: []string{fmt.Sprintf("principal_arn,%s", roleARN)},
+			},
+			{
+				Name:   durationSAMLAttribute,
+				Values: []string{duration},
+			},
+		},
+	}
+	profile := &config.Profile{Name: "staging", RoleARN: roleARN}
+
+	_, err := GetCreds(svc, saml, profile)
+	if err == nil {
+		t.Fatalf("expected error when profile ARN is empty string")
+	}
+}

@@ -20,6 +20,10 @@ var (
 
 // GetCreds fetches AWS credentials using a SAML response.
 func GetCreds(svc stsiface.STSAPI, saml *okta.SAMLResponse, profile *config.Profile) (*sts.Credentials, error) {
+	if profile.RoleARN == "" {
+		return nil, fmt.Errorf("The profile role_arn must be provided.")
+	}
+
 	roles, duration := parseSAMLAttributes(saml)
 
 	// Override default duration
