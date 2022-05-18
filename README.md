@@ -85,3 +85,21 @@ make command | description
 `make setup` | Sets up linting and changelog tools.
 `make html` | Generates test coverage report.
 `make enforce` | Enforces test coverage.
+
+## Publishing to internal homebrew
+
+The aws-creds binary is published to our internal homebrew to make it easy for
+devs to install locally. Follow these steps to publish the latest version.
+
+- Create a new release.
+```
+export VERSION=<new.aws-creds.semver>
+make release
+```
+
+- Clone the internal homebrew repo.
+```
+git clone git@github.com:lob/homebrew-internal.git
+```
+
+- Update the version for aws-creds in the lob/homebrew-internal formula.
