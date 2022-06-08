@@ -67,6 +67,7 @@ func executeRefresh(cmd *Cmd) error {
 			}
 		}
 	}
+
 	if sessionCookie != "" && err != nil && cmd.Config.EnableKeyring {
 		if deleteErr := keyring.Delete(keyringSessionService, cmd.Config.Username); deleteErr != nil {
 			return deleteErr
@@ -81,20 +82,25 @@ func executeRefresh(cmd *Cmd) error {
 
 		saml, newSessionCookie, err = okta.Login(cmd.Config, cmd.Input, "", password)
 	}
-	if err != nil && cmd.Config.EnableKeyring {
-		deleteErr := keyring.Delete(keyringPasswordService, cmd.Config.Username)
-		switch deleteErr {
-		case nil:
-			fmt.Println("Invalid password deleted from system keyring.")
-			return err
-		case keyring.ErrNotFound:
-			return err
+
+	if err != nil {
+		if cmd.Config.EnableKeyring {
+			deleteErr := keyring.Delete(keyringPasswordService, cmd.Config.Username)
+			switch deleteErr {
+			case nil:
+				fmt.Println("Invalid password deleted from system keyring.")
+				return err
+			case keyring.ErrNotFound:
+				return err
+			}
+			if deleteErr != nil && deleteErr != keyring.ErrNotFound {
+				return deleteErr
+			}
 		}
-		if deleteErr != nil && deleteErr != keyring.ErrNotFound {
-			return deleteErr
-		}
+
 		return err
 	}
+
 	if prompted {
 		err = promptSavePassword(cmd, password)
 		if err != nil {
