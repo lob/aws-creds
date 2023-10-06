@@ -50,6 +50,8 @@ $ aws-creds -p $PROFILE_NAME
 
 This may prompt you for your Okta password, preferred multi-factor auth method, and then your one-time password.
 
+Please note that push-based authentication methods are not supported by this tool. You may need to add an additional verification method to your Okta account that uses an OTP. Google Authenticator and Okta Verify both work.
+
 `aws-creds` will then populate your `$HOME/.aws/credentials` file with credentials from Okta.
 
 Finally pass `--profile=$PROFILE_NAME`, or set `AWS_PROFILE=$PROFILE_NAME`, when running `aws` commands.
